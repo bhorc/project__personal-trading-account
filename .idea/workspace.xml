@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="0a4a9ce1-71f8-4eba-b553-eecfab12bba8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/personal-trading-account.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/postcss.config.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/API/API.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/UI/Icon/AnimatedIcon.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/UI/Icon/Icon.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/UI/Menu/AsideMenu.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/UI/Menu/AsideMenuItem.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/UI/Menu/HeaderMenu.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/UI/Menu/HeaderMenuItem.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/UI/Menu/UserMenu.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/UI/Statistics/PersonalStatistics.jsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/Assets.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/arrow-down.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/arrow-finance-down.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/arrow-finance-up.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/basket.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/bell.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/chat.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/close.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/diagram.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/files.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/home.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/logo.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/logout.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/search.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/settings.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/icons/user.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/assets/images/avatar.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tailwind.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tailwind.config.js" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2DOzT5ZZChnrOUMcR6fIDodzENz" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "E:/programming/github/project__personal-trading-account/Back-end",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_interpreter_path": "node",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\programming\github\personal-trading-account\src\components\UI\Menu" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\programming\github\personal-trading-account\src\components\UI\Menu" />
+      <recent name="E:\programming\github\personal-trading-account\src\components\assets\icons" />
+      <recent name="E:\programming\github\personal-trading-account\src\components\images" />
+      <recent name="E:\programming\github\personal-trading-account\src\components\UI\Menu\Left" />
+    </key>
+  </component>
+  <component name="RunManager" selected="npm.npm start">
+    <configuration name="Debug Application" type="JavascriptDebugType" uri="http://localhost:3000">
+      <method v="2" />
+    </configuration>
+    <configuration name="npm start" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="start" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0a4a9ce1-71f8-4eba-b553-eecfab12bba8" name="Changes" comment="" />
+      <created>1660584924043</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1660584924043</updated>
+      <workItem from="1660584925154" duration="3879000" />
+      <workItem from="1660662592529" duration="46000" />
+      <workItem from="1660662643347" duration="5464000" />
+      <workItem from="1660692580722" duration="4891000" />
+      <workItem from="1660739868487" duration="18143000" />
+      <workItem from="1660771635677" duration="11234000" />
+      <workItem from="1660828642013" duration="23000" />
+      <workItem from="1660828672796" duration="7195000" />
+      <workItem from="1660923320078" duration="333000" />
+      <workItem from="1660937873186" duration="1933000" />
+      <workItem from="1660994183655" duration="2360000" />
+      <workItem from="1661005710590" duration="15933000" />
+      <workItem from="1661039973640" duration="1818000" />
+      <workItem from="1661086636484" duration="864000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
