@@ -1,12 +1,14 @@
 import Router from 'express';
 import GroupController from "../controllers/GroupController.mjs";
+import Permission from '../middlewares/PermissionsMiddleware.mjs';
+
 const router = new Router();
 
 router.post('/create', GroupController.create);
-router.post('/delete', GroupController.delete);
-router.post('/leave', GroupController.leave);
-router.post('/join', GroupController.join);
-router.post('/update', GroupController.update);
+router.post('/delete', Permission('groupOwner'), GroupController.delete);
+router.post('/update', Permission('groupOwner'), GroupController.update);
+router.post('/leave', Permission('member'), GroupController.leave);
+router.post('/join', Permission('user'), GroupController.join);
 router.get('/members', GroupController.members);
 
 export default router;

@@ -12,7 +12,7 @@ class GroupController {
             if (!user) {
                 return next(ApiError.badRequest("User not found", 400));
             }
-            await User.updateOne({_id: userId}, {$set: {groupId: group._id}});
+            await User.updateOne({_id: userId}, {$set: {groupId: group._id, permission: 'groupOwner'}});
             res.status(201).json({
                 message: "Group created",
                 groupId: group._id,

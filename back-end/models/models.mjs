@@ -4,37 +4,36 @@ const { Schema } = mongoose;
 mongoose.Promise = global.Promise;
 
 const UserSchema = new Schema({
+    groupId: { type: Schema.Types.ObjectId, ref: 'Group', default: null },
     login: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    groupId: { type: Schema.Types.ObjectId, ref: 'Group', default: null },
-    permissions: { type: Array, default: ['user'] },
+    permission: { type: String, default: 'user' },
     username: { type: String },
     steamId: { type: String },
     avatar: { type: String },
     registered: { type: Number },
-    isLoggedIn: { type: Boolean, default: false },
     isBanned: { type: Boolean, default: false },
 });
 
 const GroupSchema = new Schema({
-    name: { type: String, required: true },
     owner: { type: Schema.Types.ObjectId, ref: 'User' },
+    name: { type: String, required: true },
     members: { type: Array, required: true, default: [] },
     created: { type: Number },
 });
 
 const SiteSchema = new Schema({
-    historyId: { type: Schema.Types.ObjectId, ref: 'History', required: true, default: null },
     name: { type: String, required: true },
     url: { type: String, required: true },
     logo: { type: String, required: true },
 });
 
 const HistorySchema = new Schema({
+    siteId: { type: Schema.Types.ObjectId, required: true, ref: 'Site' },
     balance: { type: Number, required: true, default: 0 },
     transactions: { type: Array, required: true, default: [] },
-    solds: { type: Array, required: true, default: [] },
-    updated: { type: Number, required: true, default: Date.now() },
+    purchases: { type: Array, required: true, default: [] },
+    updated: { type: Number },
 });
 
 export const User = mongoose.model('User', UserSchema);
