@@ -12,6 +12,7 @@ class SiteController {
             if (!site) {
                 return next(ApiError.badRequest("Site not found", 400));
             }
+            await fileService.deleteFile(site.logo);
             await Site.deleteOne({_id: id});
             res.status(200).json({
                 message: "Site deleted",
@@ -35,12 +36,17 @@ class SiteController {
     }
     async updateSite(req, res, next) {
         try {
-            const {id, name, url, logo} = req.body;
+            const {id} = req.body;
             const site = await Site.findOne({_id: id});
             if (!site) {
                 return next(ApiError.badRequest("Site not found", 400));
             }
-            await Site.updateOne({_id: id}, {$set: {name, url, logo}});
+            const {...options} = req.body;
+            if (req.files.logo) {
+                await fileService.deleteFile(site.logo);
+                options.logo = fileService.saveFile(req.files.logo);
+            }
+            await Site.updateOne({_id: id}, options);
             res.status(200).json({
                 message: "Site updated",
             });

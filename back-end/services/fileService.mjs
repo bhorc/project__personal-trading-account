@@ -1,5 +1,6 @@
-import * as uuid from "uuid";
-import * as path from "path";
+import uuid from "uuid";
+import path from "path";
+import fs from "fs";
 
 class FileService {
     saveFile(file) {
@@ -8,6 +9,14 @@ class FileService {
             const filePath = path.resolve("./uploads", fileName);
             file.mv(filePath);
             return fileName;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async deleteFile(fileName) {
+        try {
+            const filePath = path.resolve("./uploads", fileName);
+            await fs.unlink(filePath);
         } catch (error) {
             throw error;
         }
