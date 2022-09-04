@@ -1,91 +1,123 @@
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
-import ApiError from '../error/ApiError.mjs';
-import { User } from '../models/models.mjs';
+import ServerMessage from "../union/ServerMessage.mjs";
+import {User} from '../models/models.mjs';
 dotenv.config();
 
 class UserController {
-    async register(req, res, next) {
+    async ban(req, res, next) {
         try {
-            const {login, password} = req.body;
-            const user = await User.findOne({login});
-            if (user) {
-                return next(ApiError.badRequest("User already exists", 400));
-            }
-            const hashPassword = await bcrypt.hash(password, 10);
-            await User.create({login, password: hashPassword, registered: Date.now()});
-            res.status(200).json({
-                message: "User created",
-            });
+            const {userId} = req.body;
+            const user = await User.findOneAndUpdate({_id: userId}, {$set: {isBanned: true}}, {new: true});
+            return next(ServerMessage.success("User banned", user));
         } catch (error) {
-            console.log(error);
-            next(error);
+            return next(ServerMessage.serverError(error));
         }
     }
-    async login(req, res, next) {
+    async unban(req, res, next) {
         try {
-            if (req.session.user) {
-                return next(ApiError.badRequest("User is already logged in", 400));
-            }
-            const {login, password} = req.body;
-            const user = await User.findOne({login});
-            if (!user) {
-                return next(ApiError.badRequest("User not found", 400));
-            }
-            const isPasswordValid = await bcrypt.compare(password, user.password);
-            if (!isPasswordValid) {
-                return next(ApiError.badRequest("Password is invalid", 400));
-            }
-            req.session.user = user;
-            res.status(200).json({
-                message: "User logged in",
-            });
+            const {userId} = req.body;
+            const user = await User.findOneAndUpdate({_id: userId}, {$set: {isBanned: false}}, {new: true});
+            return next(ServerMessage.success("User unbanned", user));
         } catch (error) {
-            next(error);
+            return next(ServerMessage.serverError(error));
+        }
+    }
+    async getUsers(req, res, next) {
+        try {
+            const users = await User.find();
+            return next(ServerMessage.success('Users found', users, users));
+        } catch (error) {
+            return next(ServerMessage.serverError(error));
+        }
+    }
+    async getUser(req, res, next) {
+        try {
+            const {userId} = req.body;
+            const user = await User.findById(userId);
+            if (!user) {
+                return next(ServerMessage.badRequest("User not found"));
+            }
+            return next(ServerMessage.success("User found", user, user));
+        } catch (error) {
+            return next(ServerMessage.serverError(error));
+        }
+    }
+
+    async editProfile(req, res, next) {
+        try {
+            const {
+                password,
+                login = req.session.user.login,
+                username = req.session.user.username,
+            } = req.body;
+            const newPassword = password ? await bcrypt.hash(password, 10) : req.session.user.password;
+            const user = await User.findOneAndUpdate({_id: req.session.user._id}, {$set: { login, username, password: newPassword }}, {new: true});
+            req.session.user = user;
+            return next(ServerMessage.success("Profile edited", user));
+        } catch (error) {
+            return next(ServerMessage.serverError(error));
+        }
+    }
+    async delete(req, res, next) {
+        try {
+            const {user} = req.session;
+            await User.deleteOne({_id: user._id});
+            next(ServerMessage.success("User deleted", user));
+            req.session.destroy();
+        } catch (error) {
+            return next(ServerMessage.serverError(error));
         }
     }
     async logout(req, res, next) {
         try {
+            const {user} = req.session;
+            next(ServerMessage.success("User logged out", user));
             req.session.destroy();
-            res.status(200).json({
-                message: "User logged out",
-            });
         } catch (error) {
             next(error);
         }
     }
     async auth(req, res, next) {
         try {
-            if (!req.session.user) {
-                return next(ApiError.badRequest("User is not authorized", 400));
+            return next(ServerMessage.success("User authorized"));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async register(req, res, next) {
+        try {
+            const {login, password} = req.body;
+            const isExist = await User.findOne({login});
+            if (isExist) {
+                return next(ServerMessage.badRequest("User already exists"));
             }
-            res.status(200).json({
-                message: "User authorized"
-            });
+            const hashPassword = await bcrypt.hash(password, 10);
+            const user = await User.create({ login, password: hashPassword, registered: Date.now() });
+            return next(ServerMessage.success('User registered', user));
         } catch (error) {
-            next(error);
+            return next(ServerMessage.serverError(error));
         }
     }
-    async ban(req, res, next) {
+    async login(req, res, next) {
         try {
-            const {userId} = req.body;
-            await User.updateOne({_id: userId}, {$set: {isBanned: true}});
-            res.status(200).json({
-                message: "User banned",
-            });
+            if (req.session.user) {
+                return next(ServerMessage.badRequest("User is already logged in"));
+            }
+            const {login, password} = req.body;
+            const user = await User.findOne({login});
+            if (!user) {
+                return next(ServerMessage.badRequest("User not found"));
+            }
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+            if (!isPasswordValid) {
+                return next(ServerMessage.badRequest("Password is invalid"));
+            }
+            req.session.user = user;
+            return next(ServerMessage.success("User logged in", user));
         } catch (error) {
-            next(error);
-        }
-    }
-    async unban(req, res, next) {
-        try {
-            const {userId} = req.body;
-            await User.updateOne({_id: userId}, {$set: {isBanned: false}});
-            res.status(200).json({
-                message: "User unbanned",
-            });
-        } catch (error) {
-            next(error);
+            return next(ServerMessage.serverError(error));
         }
     }
 }

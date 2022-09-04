@@ -1,4 +1,4 @@
-import uuid from "uuid";
+import * as uuid from "uuid";
 import path from "path";
 import fs from "fs";
 

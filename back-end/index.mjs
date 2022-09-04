@@ -11,8 +11,7 @@ import cors from "cors";
 import mongoose from 'mongoose';
 
 import routers from "./routes/Routers.mjs";
-import errorHandler from "./middlewares/ErrorHandlingMiddleware.mjs";
-
+import ServerMessageMiddleware from "./middlewares/ServerMessageMiddleware.mjs";
 
 dotenv.config();
 const {
@@ -42,13 +41,16 @@ app.use(session({
     secret: SESSION_SECRET_KEY,
     saveUninitialized: false,
     resave: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+    },
     store: MongoStore.create({
         mongoUrl: MONGODB_URL,
         ttl: 1000 * 60 * 60 * 24 * 7,
     })
 }));
 app.use('/api', routers);
-app.use(errorHandler);
+app.use(ServerMessageMiddleware);
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
