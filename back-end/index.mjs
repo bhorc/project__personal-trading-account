@@ -2,13 +2,13 @@ import dotenv from 'dotenv';
 import express from "express";
 import bodyParser from "body-parser";
 import { createServer } from "http";
-import { Server } from "socket.io";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import fileUpload from 'express-fileupload';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import mongoose from 'mongoose';
+// import { Server } from "socket.io";
 
 import routers from "./routes/Routers.mjs";
 import ServerMessageMiddleware from "./middlewares/ServerMessageMiddleware.mjs";
@@ -22,7 +22,7 @@ const {
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+// const io = new Server(server);
 
 mongoose.connect(MONGODB_URL)
     .then(() => {

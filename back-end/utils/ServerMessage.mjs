@@ -1,13 +1,13 @@
 class ServerMessage extends Error {
-    constructor(statusCode, message, event, data) {
+    constructor(statusCode, message, data, event) {
         super();
         this.statusCode = statusCode;
         this.message = message;
-        this.event = event;
         this.data = data;
+        this.event = event;
     }
-    static success(message, event, data) {
-        return new ServerMessage(200, message, event, data);
+    static success(message, data, event) {
+        return new ServerMessage(200, message, data, event);
     }
     static badRequest(message) {
         return new ServerMessage(400, message);

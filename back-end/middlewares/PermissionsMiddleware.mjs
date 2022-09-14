@@ -1,12 +1,12 @@
 import dotenv from "dotenv";
-import ServerError from "../union/ServerMessage.mjs";
+import ServerError from "../utils/ServerMessage.mjs";
 import permissionsPriority from "../models/permissionsPriority.mjs";
 dotenv.config();
 
 const middleware = function (accessed = "nobody", denied = "banned") {
     return function (req, res, next) {
         if (!req.session.user) {
-            return next(ServerError.unauthorized("Unauthorized"));
+            return next(ServerError.unauthorized("User is not logged in"));
         }
         const { permission, isBanned } = req.session.user;
         if (!permissionsPriority[permission] || isBanned) {

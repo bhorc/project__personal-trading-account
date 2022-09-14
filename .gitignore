@@ -1,4 +1,7 @@
-
 back-end/node_modules/
-
+back-end/gen/
 back-end/.env
+back-end/.idea
+back-end/.vscode
+
+.idea/

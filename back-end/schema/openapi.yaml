@@ -1,0 +1,1886 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Personal trading account API
+servers:
+  - url: http://localhost:3001/api
+paths:
+  /user/register:
+    post:
+      tags:
+        - user
+      summary: Register a new user
+      description: Register a new user
+      operationId: register
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/User'
+            example:
+              login: Andrew
+              password: '666666'
+              username: Crook
+        description: User credentials
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User registered'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User already exists'
+  /user/login:
+    post:
+      tags:
+        - user
+      summary: Login to the trading account
+      description: Login to the trading account
+      operationId: login
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Login'
+        description: Login credentials
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User logged in'
+        '400':
+          description: Invalid password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Password is invalid'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User not found'
+        '409':
+          description: User is already logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is already logged in'
+  /user/logout:
+    get:
+      tags:
+        - user
+      summary: Logout from the trading account
+      description: Logout from the trading account
+      operationId: logout
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User logged out'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+  /user/auth:
+    get:
+      tags:
+        - user
+      summary: Check if user is logged in
+      description: Check if user is logged in
+      operationId: auth
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is logged in'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: 'User is not logged in'
+                    type: string
+  /user/editProfile:
+    post:
+      tags:
+        - user
+      summary: Edit user profile
+      description: Edit user profile
+      operationId: editProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/User'
+            example:
+              login: Andrew
+              password: '666666'
+              username: Crook
+        description: User credentials
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User profile edited'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+  /user/deleteUser:
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: Delete user
+      operationId: deleteUser
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User deleted'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+  /user/deleteUser/{userId}:
+    delete:
+      tags:
+        - user
+      summary: Delete user by id
+      description: Delete user by id (only with permissions admin or superAdmin)
+      operationId: deleteUserById
+      parameters:
+        - name: userId
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User deleted'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User not found'
+  /user/ban:
+    post:
+      tags:
+        - user
+      summary: Ban user
+      description: Ban user (only with permissions admin or superAdmin)
+      operationId: ban
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - userId
+              type: object
+              properties:
+                userId:
+                  type: string
+                  example: 5f9f1b9b9b9b9b9b9b9b9b9b
+        description: User login
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User banned'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User not found'
+  /user/unban:
+    post:
+      tags:
+        - user
+      summary: Unban user
+      description: Unban user (only with permissions admin or superAdmin)
+      operationId: unban
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - userId
+              type: object
+              properties:
+                userId:
+                  type: string
+                  example: 5f9f1b9b9b9b9b9b9b9b9b9b
+        description: User login
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User unbanned'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User not found'
+  /user/getUsers:
+    get:
+      tags:
+        - user
+      summary: Get all users
+      description: Get all users
+      operationId: getUsers
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Users found'
+                  data:
+                    $ref: '#/definitions/User'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+  /user/getUsers/{userId}:
+    get:
+      tags:
+        - user
+      summary: Get user by id
+      description: Get user by id
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User found'
+                  data:
+                    $ref: '#/definitions/User'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User not found'
+  /notifications/subscribe:
+    post:
+      tags:
+        - notifications
+      summary: Subscribe to notifications
+      description: Subscribe to notifications
+      operationId: subscribe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - notificationType
+              type: object
+              properties:
+                notificationType:
+                  type: string
+                  example: 'Group'
+        description: User login
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User successful subscribed to this type of notifications'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Bad request'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '409':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User already subscribed to this type of notifications'
+  /notifications/unsubscribe:
+    post:
+      tags:
+        - notifications
+      summary: Unsubscribe from notifications
+      description: Unsubscribe from notifications
+      operationId: unsubscribe
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - notificationType
+              type: object
+              properties:
+                notificationType:
+                  type: string
+                  example: 'Group'
+        description: User login
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User successful unsubscribed from this type of notifications'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Subscription type not valid'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '409':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User already unsubscribed from this type of notifications'
+  /notifications/unsubscribedAll:
+    post:
+      tags:
+        - notifications
+      summary: Unsubscribe from all notifications
+      description: Unsubscribe from all notifications
+      operationId: unsubscribedAll
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User successful unsubscribed from all notifications'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+  /notifications/getSubscriptions:
+    get:
+      tags:
+        - notifications
+      summary: Get user subscriptions
+      description: Get user subscriptions
+      operationId: getSubscriptions
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User successful unsubscribed from all notifications'
+                  data:
+                    type: array
+                    items:
+                      type: string
+                      example: 'Group'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+  /notifications/getNotifications/:
+    get:
+      tags:
+        - notifications
+      summary: Get user notifications
+      description: Get user notifications
+      operationId: getNotifications
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User notifications'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Notification'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+  /notifications/getNotifications/{notificationId}:
+    get:
+      tags:
+        - notifications
+      summary: Get user notification
+      description: Get user notification by id
+      operationId: getNotification
+      parameters:
+        - name: notificationId
+          in: path
+          description: ID of notification to return
+          required: true
+          schema:
+            type: string
+            example: 631529966ae8dcdd8fd8da91
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User notifications'
+                  data:
+                    type: object
+                    $ref: '#/definitions/Notification'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '404':
+          description: Notification not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Notification not found'
+  /site/createSite:
+    post:
+      tags:
+        - site
+      summary: Create site
+      description: Create site (only with permissions admin or superAdmin)
+      operationId: createSite
+      requestBody:
+        description: Site object that needs to be created
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: integer
+                  example: 'Site name'
+                url:
+                  type: integer
+                  example: 'https://www.google.com'
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site created'
+        '400':
+          description: Site not created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site not created'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+  /site/getSites:
+    get:
+      tags:
+        - site
+      summary: Get all sites
+      description: Get all sites
+      operationId: getSites
+      security: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Sites found'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Site'
+  /site/getSites/{siteId}:
+    get:
+      tags:
+        - site
+      summary: Get site by id
+      description: Get site by id
+      operationId: getSite
+      parameters:
+        - name: siteId
+          in: path
+          description: ID of site to return
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      security: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site found'
+                  data:
+                    type: object
+                    $ref: '#/definitions/Site'
+        '404':
+          description: Site not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site not found'
+    delete:
+      tags:
+        - site
+      summary: Delete site by id
+      description: Delete site by id (only with permissions admin or superAdmin)
+      operationId: deleteSite
+      parameters:
+        - name: siteId
+          in: path
+          description: ID of site to delete
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site deleted'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: Site not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site not found'
+    put:
+      tags:
+        - site
+      summary: Update site by id
+      description: Update site by id (only with permissions admin or superAdmin)
+      operationId: updateSite
+      parameters:
+        - name: siteId
+          in: path
+          description: ID of site to update
+          required: true
+          schema:
+            type: string
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      requestBody:
+        description: Site object that needs to be updated
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: integer
+                  example: 'Site name'
+                url:
+                  type: integer
+                  example: 'https://www.google.com'
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site updated'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: Site not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site not found'
+  /site/getSites/{siteId}/history:
+    put:
+      tags:
+        - site
+      summary: Create history for site
+      description: Create history for site
+      operationId: createHistory
+      parameters:
+        - name: siteId
+          in: path
+          description: ID of site to create history
+          required: true
+          schema:
+            type: string
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      requestBody:
+        description: History object that needs to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/History'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'History created'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: Site not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site not found'
+    get:
+      tags:
+        - site
+      summary: Get history for site
+      description: Get history for site
+      operationId: getHistory
+      parameters:
+        - name: siteId
+          in: path
+          description: ID of site to get history
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'History found'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/History'
+        '404':
+          description: Site not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site not found'
+  /site/getSites/{siteId}/history/{historyId}:
+    get:
+      tags:
+        - site
+      summary: Get history by id
+      description: Get history by id
+      operationId: getHistoryById
+      parameters:
+        - name: siteId
+          in: path
+          description: ID of site to get history
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+        - name: historyId
+          in: path
+          description: ID of history to return
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'History found'
+                  data:
+                    type: object
+                    $ref: '#/definitions/History'
+        '404':
+          description: History not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'History not found'
+    put:
+      tags:
+        - site
+      summary: Update history by id
+      description: Update history by id
+      operationId: updateHistory
+      parameters:
+        - name: siteId
+          in: path
+          description: ID of site to update history
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+        - name: historyId
+          in: path
+          description: ID of history to update
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      requestBody:
+        description: History object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/History'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'History updated'
+        '404':
+          description: History not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'History not found'
+  /group/create:
+    post:
+      tags:
+        - group
+      summary: Create group
+      description: Create group (only with permissions user or higher)
+      operationId: createGroup
+      requestBody:
+        description: Group object that needs to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 'Group name'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group created'
+        '400':
+          description: Group already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group already exists'
+  /group/{groupId}/delete:
+    delete:
+      tags:
+        - group
+      summary: Delete group
+      description: Delete group (only with permissions groupOwner or higher)
+      operationId: deleteGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of group to delete
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group deleted'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group not found'
+  /group/{groupId}/update:
+    put:
+      tags:
+        - group
+      summary: Update group
+      description: Update group (only with permissions groupOwner or higher)
+      operationId: updateGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of group to update
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      requestBody:
+        description: Group object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 'Group name'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group updated'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group not found'
+  /group/{groupId}/invite:
+    post:
+      tags:
+        - group
+      summary: Invite user to group
+      description: Invite user to group (only with permissions member or higher)
+      operationId: inviteUserToGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of group to update
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      requestBody:
+        description: Group object that needs to be joined
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: _id
+                  example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User invited'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group not found'
+  /group/{groupId}/acceptInvite:
+    get:
+      tags:
+        - group
+      summary: Accept invite to group
+      description: Accept invite to group
+      operationId: acceptInviteToGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of group to update
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Invite accepted'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group not found'
+  /group/{groupId}/declineInvite:
+    get:
+      tags:
+        - group
+      summary: Decline invite to group
+      description: Decline invite to group
+      operationId: declineInviteToGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of group to update
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Invite declined'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group not found'
+  /group/{groupId}/leave:
+    get:
+      tags:
+        - group
+      summary: Leave group
+      description: Leave group (only with permissions member but not groupOwner)
+      operationId: leaveGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of group to update
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User left group'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group not found'
+  /group/{groupId}/kick:
+    post:
+      tags:
+        - group
+      summary: Kick user from group
+      description: Kick user from group (only with permissions groupOwner or higher)
+      operationId: kickUserFromGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of group to update
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      requestBody:
+        description: Group object that needs to be joined
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: _id
+                  example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User kicked'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User has no permissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User has no permissions'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group not found'
+  /group/{groupId}/getMembers:
+    get:
+      tags:
+        - group
+      summary: Get members of group
+      description: Get members of group
+      operationId: getMembersOfGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: ID of group to get members
+          required: true
+          schema:
+            type: string
+            format: _id
+            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/definitions/User'
+        '404':
+          description: Group not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Group not found'
+components:
+  schemas:
+    User:
+      $ref: '#/definitions/User'
+    Group:
+      $ref: '#/definitions/Group'
+    Site:
+      $ref: '#/definitions/Site'
+    History:
+      $ref: '#/definitions/History'
+    Notification:
+      $ref: '#/definitions/Notification'
+    ApiResponse:
+      $ref: '#/definitions/ApiResponse'
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+security:
+  - cookieAuth: []
+definitions:
+  User:
+    required:
+      - login
+      - password
+    type: object
+    properties:
+      _id:
+        type: ObjectId
+        format: _id
+        example: 63080201e3957808e2bebe61
+      type:
+        type: string
+        default: User
+      groupId:
+        type: ObjectId
+        format: _id
+        example: 5445654das654sada465s4ad
+        ref: Group
+        default: null
+      login:
+        type: string
+        example: user1
+        unique: true
+      password:
+        type: string
+        example: 123456
+      permission:
+        type: string
+        default: user
+      isBanned:
+        type: boolean
+        default: false
+      subscriptions:
+        type: array
+        items:
+          type: string
+          example: Group
+      username:
+        type: string
+        example: User1
+      steamId:
+        type: string
+        example: 76561198000000000
+      avatar:
+        type: string
+        example: https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/00/00000000000000000.jpg
+      created:
+        type: number
+        default: 1663117006355
+      updated:
+        type: number
+        default: 1663117006355
+    xml:
+      name: user
+  Group:
+    required:
+      - name
+    type: object
+    properties:
+      _id:
+        type: ObjectId
+        format: _id
+        example: 63080201e3957808e2bebe61
+      type:
+        type: string
+        default: Group
+      name:
+        type: string
+        example: Group1
+      members:
+        type: array
+        items:
+          type: ObjectId
+          ref: User
+          example: 63080201e3957808e2bebe61
+      owner:
+        type: ObjectId
+        ref: User
+        example: 63080201e3957808e2bebe61
+      created:
+        type: number
+        default: 1663117006355
+      updated:
+        type: number
+        default: 1663117006355
+    xml:
+      name: group
+  Site:
+    required:
+      - name
+      - url
+      - type
+    type: object
+    properties:
+      _id:
+        type: ObjectId
+        format: _id
+        example: 63080201e3957808e2bebe61
+      type:
+        type: string
+        default: Site
+      name:
+        type: string
+        example: Site1
+      url:
+        type: string
+        example: https://site1.com
+      logo:
+        type: string
+        example: https://site1.com/logo.png
+      created:
+        type: number
+        default: 1663117006355
+      updated:
+        type: number
+        default: 1663117006355
+    xml:
+      name: site
+  History:
+    required:
+      - siteId
+    type: object
+    properties:
+      _id:
+        type: ObjectId
+        format: _id
+        example: 63080201e3957808e2bebe61
+      type:
+        type: string
+        default: History
+      siteId:
+        type: ObjectId
+        ref: Site
+        example: 63080201e3957808e2bebe61
+      userId:
+        type: ObjectId
+        ref: User
+        example: 63080201e3957808e2bebe61
+      created:
+        type: number
+        default: 1663117006355
+      updated:
+        type: number
+        default: 1663117006355
+    xml:
+      name: history
+  Notification:
+    required:
+      - locationId
+      - message
+    type: object
+    properties:
+      _id:
+        type: ObjectId
+        format: _id
+        example: 63080201e3957808e2bebe61
+      type:
+        type: string
+        default: Notification
+      userId:
+        type: ObjectId
+        ref: User
+        example: 63080201e3957808e2bebe61
+      locationId:
+        type: ObjectId
+        ref: Location
+        example: 63080201e3957808e2bebe61
+      location:
+        type: string
+        enum:
+          - User
+          - Group
+          - Site
+          - History
+        example: Group
+      message:
+        type: string
+        example: Notification message
+      seen:
+        type: boolean
+        default: false
+      created:
+        type: number
+        default: 1663117006355
+      updated:
+        type: number
+        default: 1663117006355
+    xml:
+      name: notification
+  ApiResponse:
+    type: object
+    properties:
+      message:
+        type: string
+      data:
+        type: object
+        default: null
+    xml:
+      name: ApiResponse
+  Login:
+    required:
+      - login
+      - password
+    type: object
+    properties:
+      login:
+        type: string
+        example: Andrew
+      password:
+        type: string
+        example: 666666
+    xml:
+      name: Login

@@ -1,9 +1,10 @@
-import ServerMessage from '../union/ServerMessage.mjs';
+import ServerMessage from '../utils/ServerMessage.mjs';
 import {Notification} from "../models/models.mjs";
 
 const handler = async (err, req, res, next) => {
     if (err instanceof ServerMessage) {
         const {statusCode, message, event, data} = err;
+
         if (statusCode == 200 && event) {
             await Notification.create({
                 userId: req.session?.user?._id,
