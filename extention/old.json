@@ -1,0 +1,30 @@
+[
+  {
+    "domain": "cs.money",
+    "parseInfo": {
+      "inventory": "https://cs.money/3.0/load_user_inventory/730?isPrime=false&limit=60&noCache=true&offset=0&order=desc&sort=price&withStack=true",
+      "transactions": null
+    }
+  },
+  {
+    "domain": "old.cs.money",
+    "parseInfo": {
+      "inventory": null,
+      "transactions": "https://old.cs.money/get_transactions"
+    }
+  },
+  {
+    "domain": "buff.163.com",
+    "parseInfo": {
+      "inventory": null,
+      "transactions": null
+    }
+  },
+  {
+    "domain": "steamcommunity.com",
+    "parseInfo": {
+      "inventory": "https://steamcommunity.com/inventory/76561198139995771/730/2?l=english&count=5000",
+      "transactions": "https://steamcommunity.com/id/BHORC/inventoryhistory/?ajax=1&cursor%5Btime%5D=1660697722&cursor%5Btime_frac%5D=0&cursor%5Bs%5D=6041442968&app%5B%5D=730"
+    }
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "manifest_version": 2,
+  "content_scripts": [{
+    "js": ["js/main.js"],
+    "css": ["css/style.css"],
+    "matches": [
+      "*://*.cs.money/*",
+      "*://*.steamcommunity.com/*",
+      "*://*.buff.163.com/*",
+      "*://*.localhost/*"
+    ],
+    "run_at": "document_idle"
+  }],
+  "permissions": [
+    "https://*/",
+    "*://*.cs.money/*",
+    "*://*.steamcommunity.com/*",
+    "*://*.buff.163.com/*",
+    "*://*.localhost/*",
+    "cookies",
+    "storage",
+    "identity"
+  ],
+  "background": {
+    "scripts": [
+      "js/parsers/DefaultParser.js",
+      "js/parsers/CsMoneyParser.js",
+      "js/parsers/OldCsMoneyParser.js",
+      "js/parsers/SteamParser.js",
+      "js/parsers/BuffParser.js",
+      "js/socket.io.min.js",
+      "js/background.js"
+    ],
+    "persistent": false
+  },
+  "web_accessible_resources": [
+    "js/socket.io.min.js"
+  ],
+  "description":  "Trading Personal Account Extension",
+  "name":         "Trading Personal Account",
+  "short_name":   "TPA",
+  "version":      "0.0.1"
+}
