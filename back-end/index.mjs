@@ -13,7 +13,7 @@ import mongoose from 'mongoose';
 import routers from "./routes/Routers.mjs";
 import ServerMessageMiddleware from "./middlewares/ServerMessageMiddleware.mjs";
 
-dotenv.config();
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 const {
     MONGODB_URL,
     SESSION_SECRET_KEY,
