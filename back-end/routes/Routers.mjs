@@ -1,16 +1,16 @@
 import Router from 'express';
-import userRouter from './userRouter.mjs';
-import siteRouter from './siteRouter.mjs';
-import groupRouter from './groupRouter.mjs';
-import notificationRouter from "./notificationRouter.mjs";
-import swaggerDocs from '../utils/swagger.mjs';
+import UserRouter from './UserRouter.mjs';
+import NotificationRouter from './NotificationRouter.mjs';
+import SiteRouter from './SiteRouter.mjs';
+import GroupRouter from './GroupRouter.mjs';
+import SwaggerRouter from './SwaggerRouter.mjs';
 
 const routers = new Router();
 
-routers.use('/user', userRouter);
-routers.use('/notifications', notificationRouter);
-routers.use('/site', siteRouter);
-routers.use('/group', groupRouter);
-routers.use('/docs', swaggerDocs);
+routers.use('/user', UserRouter);
+routers.use('/notifications', NotificationRouter);
+routers.use('/site', SiteRouter);
+routers.use('/group', GroupRouter);
+routers.use('/docs', SwaggerRouter);
 
 export default routers;

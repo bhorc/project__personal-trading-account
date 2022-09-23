@@ -1,127 +1,143 @@
-import dotenv from 'dotenv';
-import ServerError from '../utils/ServerMessage.mjs';
-import { Site, History } from '../models/models.mjs';
-import fileService from "../services/fileService.mjs";
-import ServerMessage from "../utils/ServerMessage.mjs";
-dotenv.config();
+import ServerMessage from '../services/ServerMessageService.mjs';
+import SiteService from '../services/SiteService.mjs';
 
 class SiteController {
-    async deleteSite(req, res, next) {
-        try {
-            const {siteId} = req.params;
-            const site = await Site.findOne({_id: siteId});
-            if (!site) {
-                return next(ServerError.badRequest("Site not found"));
-            }
-            await fileService.deleteFile("./uploads", site.logo);
-            await Site.deleteOne({_id: siteId});
-            return next(ServerMessage.success("Site deleted"));
-        } catch (error) {
-            return next(ServerMessage.serverError(error));
-        }
+  // Permission 'nobody'
+  static async getSites(req, res, next) {
+    try {
+      const sites = await SiteService.getSites();
+      return next(ServerMessage.success('Sites found', sites));
+    } catch (error) {
+      return next(ServerMessage.serverError(error));
     }
-    async createSite(req, res, next) {
-        try {
-            const {name, url} = req.body;
-            const fileName = fileService.saveFile("./uploads", req.files.logo);
-            const site = await Site.create({name, url, logo: fileName});
-            return next(ServerMessage.success("Site added", undefined, site));
-        } catch (error) {
-            return next(ServerMessage.serverError(error));
-        }
+  }
+  // Permission 'nobody'
+  static async getSiteById(req, res, next) {
+    try {
+      const { siteId } = req.params;
+      switch (false) {
+        case await SiteService.isSiteExist(siteId):
+          return next(ServerMessage.badRequest('Site not found'));
+        default:
+          const site = await SiteService.getSiteById(siteId);
+          return next(ServerMessage.success('Site found', site));
+      }
+    } catch (error) {
+      return next(ServerMessage.serverError(error));
     }
-    async updateSite(req, res, next) {
-        try {
-            const {siteId} = req.params;
-            const site = await Site.findOne({_id: siteId});
-            if (!site) {
-                return next(ServerError.badRequest("Site not found"));
-            }
-            const {...options} = req.body;
-            if (req.files.logo) {
-                await fileService.deleteFile("./uploads", site.logo);
-                options.logo = fileService.saveFile("./uploads", req.files.logo);
-            }
-            const updatedSite = await Site.findOneAndUpdate({_id: siteId}, options, {new: true});
-            return next(ServerMessage.success("Site updated", undefined, updatedSite));
-        } catch (error) {
-            return next(ServerMessage.serverError(error));
-        }
+  }
+  // Permission 'admin'
+  static async createSite(req, res, next) {
+    try {
+      const { name, url } = req.body;
+      const { logo } = req.files || {};
+      switch (true) {
+        case await SiteService.isEmpty(logo):
+          return next(ServerMessage.badRequest('Logo not found'));
+        case !await SiteService.isSiteNameValid(name):
+          return next(ServerMessage.badRequest('Site already exist'));
+        default:
+          await SiteService.createSite(name, url, logo);
+          return next(ServerMessage.success('Site created'));
+      }
+    } catch (error) {
+      return next(ServerMessage.serverError(error));
     }
-    async getSites(req, res, next) {
-        try {
-            const sites = await Site.find();
-            return next(ServerMessage.success("Sites found", sites, sites));
-        } catch (error) {
-            return next(ServerMessage.serverError(error));
-        }
+  }
+  // Permission 'admin'
+  static async deleteSite(req, res, next) {
+    try {
+      const { siteId } = req.params;
+      switch (false) {
+        case await SiteService.isSiteExist(siteId):
+          return next(ServerMessage.badRequest('Site not found'));
+        default:
+          await SiteService.deleteSite(siteId);
+          return next(ServerMessage.success('Site deleted'));
+      }
+    } catch (error) {
+      return next(ServerMessage.serverError(error));
     }
-    async getSiteById(req, res, next) {
-        try {
-            const {siteId} = req.params;
-            const site = await Site.findOne({_id: siteId});
-            if (!site) {
-                return next(ServerError.notFound("Site not found"));
-            }
-            return next(ServerMessage.success("Site found", site, site));
-        } catch (error) {
-            return next(ServerMessage.serverError(error));
-        }
+  }
+  // Permission 'admin'
+  static async updateSite(req, res, next) {
+    try {
+      const { siteId } = req.params;
+      const { name, url } = req.body;
+      const { logo } = req.files || {};
+      switch (false) {
+        case await SiteService.isSiteExist(siteId):
+          return next(ServerMessage.badRequest('Site not found'));
+        default:
+          await SiteService.updateSite(siteId, { name, url, logo });
+          return next(ServerMessage.success('Site updated'));
+      }
+    } catch (error) {
+      return next(ServerMessage.serverError(error));
     }
-    async createHistory(req, res, next) {
-        try {
-            const {siteId} = req.params;
-            const site = await Site.findOne({_id: siteId});
-            if (!site) {
-                return next(ServerError.badRequest("Site not found"));
-            }
-            const {balance, transactions, purchases, updated = Date.now()} = req.body;
-            const history = await History.create({siteId, balance, transactions, purchases, updated});
-            return next(ServerMessage.success("History added", undefined, history));
-        } catch (error) {
-            return next(ServerMessage.serverError(error));
-        }
+  }
+  // Permission 'user'
+  static async createHistory(req, res, next) {
+    try {
+      const { siteId } = req.params;
+      const { balance, transactions, purchases } = req.body;
+      switch (false) {
+        case await SiteService.isSiteExist(siteId):
+          return next(ServerMessage.badRequest('Site not found'));
+        default:
+          const history = await SiteService.createHistory(siteId, {
+            balance, transactions, purchases,
+          });
+          return next(ServerMessage.success('History created', history));
+      }
+    } catch (error) {
+      return next(ServerMessage.serverError(error));
     }
-    async updateHistory(req, res, next) {
-        try {
-            const {siteId, historyId} = req.params;
-            const site = await Site.findOne({_id: siteId});
-            if (!site) {
-                return next(ServerError.badRequest("Site not found"));
-            }
-            const {balance, transactions, purchases, updated = Date.now()} = req.body;
-            const updateHistory = await History.findOneAndUpdate({_id: historyId}, {balance, transactions, purchases, updated}, {new: true});
-            return next(ServerMessage.success("History updated", undefined, updateHistory));
-        } catch (error) {
-            return next(ServerMessage.serverError(error));
-        }
+  }
+  // Permission 'user'
+  static async getHistories(req, res, next) {
+    try {
+      const histories = await SiteService.getHistories();
+      return next(ServerMessage.success('Histories found', histories));
+    } catch (error) {
+      return next(ServerMessage.serverError(error));
     }
-    async getHistories(req, res, next) {
-        try {
-            const {siteId} = req.params;
-            const site = await History.findOne({siteId});
-            if (!site) {
-                return next(ServerError.badRequest("Site not found"));
-            }
-            const history = await History.find({siteId}).sort({updated: -1});
-            return next(ServerMessage.success("History found", history, history));
-        } catch (error) {
-            return next(ServerMessage.serverError(error));
-        }
+  }
+  // Permission 'user'
+  static async getHistoriesById(req, res, next) {
+    try {
+      const { siteId, historyId } = req.params;
+      switch (false) {
+        case await SiteService.isSiteExist(siteId):
+          return next(ServerMessage.badRequest('Site not found'));
+        case await SiteService.isHistoryExist(historyId):
+          return next(ServerMessage.badRequest('History not found'));
+        default:
+          const history = await SiteService.getHistoriesById(siteId, historyId);
+          return next(ServerMessage.success('History found', history));
+      }
+    } catch (error) {
+      return next(ServerMessage.serverError(error));
     }
-    async getHistoriesById(req, res, next) {
-        try {
-            const {siteId, historyId} = req.params;
-            const site = await Site.findOne({_id: siteId});
-            if (!site) {
-                return next(ServerError.badRequest("Site not found"));
-            }
-            const history = await History.findOne({_id: historyId});
-            return next(ServerMessage.success("History found", history, history));
-        } catch (error) {
-            return next(ServerMessage.serverError(error));
-        }
+  }
+  // Permission 'user'
+  static async updateHistory(req, res, next) {
+    try {
+      const { siteId, historyId } = req.params;
+      const { balance, transactions, purchases } = req.body;
+      switch (false) {
+        case await SiteService.isSiteExist(siteId):
+          return next(ServerMessage.badRequest('Site not found'));
+        case await SiteService.isHistoryExist(historyId):
+          return next(ServerMessage.badRequest('History not found'));
+        default:
+          await SiteService.updateHistory(siteId, historyId, { balance, transactions, purchases });
+          return next(ServerMessage.success('History updated'));
+      }
+    } catch (error) {
+      return next(ServerMessage.serverError(error));
     }
+  }
 }
 
-export default new SiteController();
+export default SiteController;

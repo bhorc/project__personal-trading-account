@@ -1,9 +1,10 @@
 [
   {
-    "domain": "steamcommunity.com",
+    "domain": "old.cs.money",
+    "origin": "https://old.cs.money",
     "parseInfo": {
-      "inventory": "https://steamcommunity.com/inventory/76561198139995771/730/2?l=english&count=5000",
-      "history": "https://steamcommunity.com/profiles/76561198139995771/inventoryhistory/?ajax=1&cursor%5Btime%5D=1663028575&cursor%5Btime_frac%5D=223000000&cursor%5Bs%5D=6041432742&app%5B%5D=730"
+      "inventory": null,
+      "history": "https://old.cs.money/get_transactions"
     }
   }
 ]

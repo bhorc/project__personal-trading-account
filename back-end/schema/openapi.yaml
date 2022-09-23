@@ -5,7 +5,7 @@ info:
 servers:
   - url: http://localhost:3001/api
 paths:
-  /user/register:
+  /user/createUser:
     post:
       tags:
         - user
@@ -21,7 +21,6 @@ paths:
             example:
               login: Andrew
               password: '666666'
-              username: Crook
         description: User credentials
         required: true
       responses:
@@ -129,34 +128,6 @@ paths:
                   message:
                     type: string
                     example: 'User is not logged in'
-  /user/auth:
-    get:
-      tags:
-        - user
-      summary: Check if user is logged in
-      description: Check if user is logged in
-      operationId: auth
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'User is logged in'
-        '401':
-          description: User is not logged in
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    example: 'User is not logged in'
-                    type: string
   /user/editProfile:
     post:
       tags:
@@ -172,7 +143,6 @@ paths:
             example:
               login: Andrew
               password: '666666'
-              username: Crook
         description: User credentials
         required: true
       responses:
@@ -279,26 +249,20 @@ paths:
                   message:
                     type: string
                     example: 'User not found'
-  /user/ban:
+  /user/ban/{userId}:
     post:
       tags:
         - user
       summary: Ban user
       description: Ban user (only with permissions admin or superAdmin)
       operationId: ban
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - userId
-              type: object
-              properties:
-                userId:
-                  type: string
-                  example: 5f9f1b9b9b9b9b9b9b9b9b9b
-        description: User login
-        required: true
+      parameters:
+        - name: userId
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: successful operation
@@ -340,26 +304,20 @@ paths:
                   message:
                     type: string
                     example: 'User not found'
-  /user/unban:
+  /user/unban/{userId}:
     post:
       tags:
         - user
       summary: Unban user
       description: Unban user (only with permissions admin or superAdmin)
       operationId: unban
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - userId
-              type: object
-              properties:
-                userId:
-                  type: string
-                  example: 5f9f1b9b9b9b9b9b9b9b9b9b
-        description: User login
-        required: true
+      parameters:
+        - name: userId
+          in: path
+          description: User id
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: successful operation
@@ -620,8 +578,8 @@ paths:
                   message:
                     type: string
                     example: 'User already unsubscribed from this type of notifications'
-  /notifications/unsubscribedAll:
-    post:
+  /notifications/unsubscribeAll:
+    get:
       tags:
         - notifications
       summary: Unsubscribe from all notifications
@@ -1019,8 +977,8 @@ paths:
                   message:
                     type: string
                     example: 'Site not found'
-  /site/getSites/{siteId}/history:
-    put:
+  /site/getSites/{siteId}/createHistory:
+    post:
       tags:
         - site
       summary: Create history for site
@@ -1041,6 +999,10 @@ paths:
           application/json:
             schema:
               $ref: '#/definitions/History'
+            example:
+              transactions: ['Some transaction']
+              purchases: ['Some purchase']
+              balance: 100
       responses:
         '200':
           description: successful operation
@@ -1082,6 +1044,7 @@ paths:
                   message:
                     type: string
                     example: 'Site not found'
+  /site/getSites/{siteId}/histories:
     get:
       tags:
         - site
@@ -1122,7 +1085,7 @@ paths:
                   message:
                     type: string
                     example: 'Site not found'
-  /site/getSites/{siteId}/history/{historyId}:
+  /site/getSites/{siteId}/histories/{historyId}:
     get:
       tags:
         - site
@@ -1700,6 +1663,9 @@ definitions:
       permission:
         type: string
         default: user
+      isAdmin:
+        type: boolean
+        default: false
       isBanned:
         type: boolean
         default: false
@@ -1740,16 +1706,22 @@ definitions:
       name:
         type: string
         example: Group1
-      members:
+      ownerId:
+        type: ObjectId
+        ref: User
+        example: 63080201e3957808e2bebe61
+      invitesId:
         type: array
         items:
           type: ObjectId
           ref: User
           example: 63080201e3957808e2bebe61
-      owner:
-        type: ObjectId
-        ref: User
-        example: 63080201e3957808e2bebe61
+      membersId:
+        type: array
+        items:
+          type: ObjectId
+          ref: User
+          example: 63080201e3957808e2bebe61
       created:
         type: number
         default: 1663117006355
@@ -1809,6 +1781,17 @@ definitions:
         type: ObjectId
         ref: User
         example: 63080201e3957808e2bebe61
+      balance:
+        type: number
+        default: 0
+      transactions:
+        type: array
+        items:
+          type: object
+      purchases:
+        type: array
+        items:
+          type: object
       created:
         type: number
         default: 1663117006355

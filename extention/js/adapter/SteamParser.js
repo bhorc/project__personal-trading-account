@@ -7,16 +7,16 @@ class SteamParser extends DefaultParser {
         this.trades = [];
         this.items = [];
     }
-    async parseInventory(url, cookies){
-        this.response = await this.parse(url, cookies);
+    async parseInventory(url, origin, cookies){
+        this.response = await this.parse(url, origin, cookies);
         this.items = this.response.assets.map(item => {
             let description = this.response.descriptions.find(desc => desc.classid === item.classid);
             return Object.assign(item, description);
         });
         return this.items;
     }
-    async parseHistory(url, cookies){
-        this.response = await this.parse(url, cookies);
+    async parseHistory(url, origin, cookies){
+        this.response = await this.parse(url, origin, cookies);
 
         const convertTime = (time12h) => {
             const [time, modifier] = [time12h.slice(0, -2), time12h.slice(-2)];
@@ -33,9 +33,9 @@ class SteamParser extends DefaultParser {
             });
         }
 
-        const doc = document.createElement('div');
-        doc.innerHTML = this.response.html;
-        let rows = doc.querySelectorAll('.tradehistoryrow');
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(this.response.html, "application/xml");
+        const rows = doc.querySelectorAll('.tradehistoryrow');
         for (let row of [...rows]){
             let event = row.querySelector('.tradehistory_event_description').firstChild.textContent.trim();
             let {href: profileURL, innerText: username} = row.querySelector('.tradehistory_event_description a') || {};

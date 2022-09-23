@@ -18,8 +18,9 @@ class ParserManager {
     }
 }
 class Parser {
-    constructor({domain, cookies, parseInfo}) {
+    constructor({domain, origin, cookies, parseInfo}) {
         this.domain = domain;
+        this.origin = origin;
         this.cookies = cookies;
         this.parseInfo = parseInfo;
         this.parser = this.chooseParser(domain);
@@ -41,7 +42,7 @@ class Parser {
                 if (chrome.runtime.lastError) {
                     reject(chrome.runtime.lastError);
                 } else {
-                    const cookie = cookies.reduce((acc, cookie) => acc + cookie.name + '=' + cookie.value + '; ', '')
+                    const cookie = cookies.reduce((acc, cookie) => acc + cookie.name + '=' + cookie.value + '; ', '');
                     resolve(cookie);
                 }
             });
@@ -50,8 +51,8 @@ class Parser {
     async init(){
         if (!this.parser) return;
         this.cookies = await this.getCookie();
-        this.inventory = this.inventory.concat(await this.parser.parseInventory(this.parseInfo.inventory, this.cookies));
-        this.history = this.history.concat(await this.parser.parseHistory(this.parseInfo.history, this.cookies));
+        this.inventory = this.inventory.concat(await this.parser.parseInventory(this.parseInfo.inventory, this.origin, this.cookies));
+        this.history = this.history.concat(await this.parser.parseHistory(this.parseInfo.history, this.origin, this.cookies));
     }
 }
 
