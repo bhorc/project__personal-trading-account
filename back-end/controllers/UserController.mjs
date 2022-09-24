@@ -20,7 +20,7 @@ class UserController {
   // Permission 'nobody'
   static async login(req, res, next) {
     try {
-      const { user } = req.session;
+      const { user = {} } = req.session;
       const { login, password } = req.body;
       switch (false) {
         case await UserService.isEmpty(user):
@@ -30,10 +30,11 @@ class UserController {
         case await UserService.isPasswordCorrect(login, password):
           return next(ServerMessage.badRequest('Password is incorrect'));
         default:
-          req.session.user = await UserService.login(login);
+          await UserService.login(login, user);
           return next(ServerMessage.success('User logged in'));
       }
     } catch (error) {
+      // TODO: fix error with null data
       return next(ServerMessage.serverError(error));
     }
   }
@@ -45,7 +46,7 @@ class UserController {
         case await UserService.isUserExists(userId):
           return next(ServerMessage.conflict('User already logged out'));
         default:
-          req.session.destroy();
+          await UserService.logout(req.session);
           return next(ServerMessage.success('User logged out'));
       }
     } catch (error) {

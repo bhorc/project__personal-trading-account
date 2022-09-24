@@ -42,13 +42,16 @@ class UserService extends ContainsService {
     return hashPassword;
   }
   // Services for group manipulation
-  static async login(login) {
+  static async login(login, user) {
     const {
       _id: userId, permission, isBanned, isAdmin,
     } = await User.findOne({ login });
-    return {
+    Object.assign(user, {
       userId, permission, isBanned, isAdmin,
-    };
+    });
+  }
+  static async logout(session) {
+    session.destroy();
   }
   static async deleteUser(userId) {
     await User.deleteOne({ _id: userId });

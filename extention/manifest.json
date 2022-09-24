@@ -1,5 +1,10 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
+  "version": "0.0.2",
+  "short_name": "TPA",
+  "name": "Trading Personal Account",
+  "description": "Trading Personal Account Extension",
+  "minimum_chrome_version": "96",
   "content_scripts": [{
     "js": ["js/main.js"],
     "css": ["css/style.css"],
@@ -11,33 +16,21 @@
     ],
     "run_at": "document_idle"
   }],
-  "permissions": [
+  "host_permissions": [
     "https://*/",
     "*://*.cs.money/*",
     "*://*.steamcommunity.com/*",
     "*://*.buff.163.com/*",
-    "*://*.localhost/*",
+    "*://*.localhost/*"
+  ],
+  "permissions": [
+    "declarativeNetRequest",
     "cookies",
     "storage",
+    "activeTab",
     "identity"
   ],
   "background": {
-    "scripts": [
-      "js/parsers/DefaultParser.js",
-      "js/parsers/CsMoneyParser.js",
-      "js/parsers/OldCsMoneyParser.js",
-      "js/parsers/SteamParser.js",
-      "js/parsers/BuffParser.js",
-      "js/socket.io.min.js",
-      "js/background.js"
-    ],
-    "persistent": false
-  },
-  "web_accessible_resources": [
-    "js/socket.io.min.js"
-  ],
-  "description":  "Trading Personal Account Extension",
-  "name":         "Trading Personal Account",
-  "short_name":   "TPA",
-  "version":      "0.0.1"
+    "service_worker": "js/worker_wrapper.js"
+  }
 }
