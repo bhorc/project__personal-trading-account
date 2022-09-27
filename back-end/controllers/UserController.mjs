@@ -76,7 +76,7 @@ class UserController {
     try {
       const { userId } = req.session.user;
       await UserService.deleteUser(userId);
-      req.session.destroy();
+      await UserService.logout(req.session);
       return next(ServerMessage.success('User deleted'));
     } catch (error) {
       return next(ServerMessage.serverError(error));
