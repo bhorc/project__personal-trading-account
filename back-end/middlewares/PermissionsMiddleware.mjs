@@ -1,22 +1,33 @@
-import dotenv from "dotenv";
-import ServerError from "../utils/ServerMessage.mjs";
-import permissionsPriority from "../models/permissionsPriority.mjs";
+import dotenv from 'dotenv';
+import ServerError from '../services/ServerMessageService.mjs';
+import permissionsPriority from '../models/PermissionsPriority.mjs';
+
 dotenv.config();
 
-const middleware = function (accessed = "nobody", denied = "banned") {
-    return function (req, res, next) {
-        if (!req.session.user) {
-            return next(ServerError.unauthorized("User is not logged in"));
-        }
-        const { permission, isBanned } = req.session.user;
-        if (!permissionsPriority[permission] || isBanned) {
-            return next(ServerError.forbidden("You have been banned"));
-        }
-        if (permissionsPriority[permission] < permissionsPriority[accessed] && permissionsPriority[permission] > permissionsPriority[denied]) {
-            return next(ServerError.badRequest("You don't have permission to access this resource"));
-        }
-        next();
+const middleware = function (accessed = 'nobody', denied = 'banned') {
+  return function (req, res, next) {
+    const {
+      userId,
+      permission = 'nobody',
+      isBanned = false,
+      isAdmin = false,
+    } = req.session.user;
+    const accessedPermission = permissionsPriority[permission] < permissionsPriority[accessed];
+    const deniedPermission = permissionsPriority[permission] > permissionsPriority[denied];
+
+    switch (true) {
+      case isAdmin:
+        return next();
+      case !userId:
+        return next(ServerError.unauthorized('User not logged in'));
+      case isBanned:
+        return next(ServerError.forbidden('User is banned'));
+      case accessedPermission && deniedPermission:
+        return next(ServerError.forbidden('User has no permission'));
+      default:
+        return next();
     }
-}
+  };
+};
 
 export default middleware;

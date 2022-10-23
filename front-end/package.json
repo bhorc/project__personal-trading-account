@@ -1,23 +1,38 @@
 {
-  "name": "personal-trading-account",
+  "name": "front-end",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
+    "@mui/icons-material": "^5.10.6",
+    "@mui/material": "^5.10.8",
+    "@mui/styled-engine-sc": "^5.10.6",
+    "@mui/x-date-pickers": "^5.0.4",
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.3.0",
+    "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "clsx": "^1.2.1",
+    "axios": "^1.0.0",
+    "axios-hooks": "^4.0.0",
+    "date-fns": "^2.29.3",
+    "dayjs": "^1.11.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-id-generator": "^3.0.2",
+    "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
+    "styled-components": "^5.3.6",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npm run client & npm run server",
+    "client": "react-scripts start",
+    "server": "cd ../back-end && npm run start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint src/**/*.{js,jsx,ts,tsx,json}",
+    "lint:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx,json}'",
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
   },
   "eslintConfig": {
     "extends": [
@@ -38,8 +53,25 @@
     ]
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.8",
-    "postcss": "^8.4.16",
-    "tailwindcss": "^3.1.8"
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.11.64",
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.39.0",
+    "@typescript-eslint/parser": "^5.39.0",
+    "eslint": "^8.24.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-import-resolver-typescript": "^3.5.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.3.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.0.1",
+    "eslint-plugin-react": "^7.31.8",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "json-loader": "^0.5.7",
+    "prettier": "^2.7.1",
+    "react-toastify": "^9.0.8",
+    "typescript": "^4.8.4"
   }
 }
