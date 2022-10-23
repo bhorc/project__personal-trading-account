@@ -4,15 +4,22 @@ import ContainsService from './ContainsService.mjs';
 
 class NotificationService extends ContainsService {
   // Services for group verification
-  static async isSiteExist(siteId) {
-    return Site.exists({ _id: siteId });
+  static async isSiteDomainExist(domain) {
+    const site = await Site.findOne({ domain });
+    console.log(site);
+    return !await this.isEmpty(site);
   }
-  static async isSiteNameValid(name) {
-    const site = await Site.findOne({ name });
-    return !site;
-  }
-  static async isHistoryExist(historyId) {
-    return History.exists({ _id: historyId });
+  // Services for group middleware
+  static getItemInfo(transactions) {
+    const history = {};
+    transactions.forEach((transaction) => {
+      Object.keys(transaction).forEach((key) => {
+        if (history[key] === undefined || history[key] === null) {
+          history[key] = transaction[key];
+        }
+      });
+    });
+    return history;
   }
   // Services for group manipulation
   static async getSites() {
@@ -23,55 +30,50 @@ class NotificationService extends ContainsService {
     const site = await Site.findById(siteId);
     return site;
   }
-  static async createSite(name, url, logo) {
+  static async createSite(domain, name, url, logo) {
     await Site.create({
+      domain,
       name,
       url,
       logo: FileService.saveFile('./uploads', logo),
-      created: Date.now(),
-      updated: Date.now(),
     });
   }
-  static async deleteSite(siteId) {
-    const { logo } = await Site.findById(siteId);
+  static async deleteSite(domain) {
+    const site = await Site.findOne({ domain });
+    const { _id: siteId, logo } = site;
     FileService.deleteFile('./uploads', logo);
     await History.deleteMany({ siteId });
-    await Site.deleteOne({ _id: siteId });
+    await Site.deleteOne({ domain });
   }
-  static async updateSite(siteId, options) {
-    const { logo } = await Site.findById(siteId);
-    const { name, url, logo: newLogo } = options;
-    const newOptions = { updated: Date.now() };
-    if (name) {
-      newOptions.name = name;
-    }
-    if (url) {
-      newOptions.url = url;
-    }
+  static async updateSite(oldDomain, options) {
+    const site = await Site.findOne({ domain: oldDomain });
+    const { _id: siteId, logo: oldLogo } = site;
+    const {
+      domain, name, url, logo: newLogo,
+    } = options;
     if (newLogo) {
-      FileService.deleteFile('./uploads', logo);
-      newOptions.logo = FileService.saveFile('./uploads', newLogo);
+      FileService.deleteFile('./uploads', oldLogo);
     }
     const updatedSite = await Site.updateOne({ _id: siteId }, {
-      $set: newOptions,
+      $set: {
+        ...(name && { name }),
+        ...(domain && { domain }),
+        ...(url && { url }),
+        ...(newLogo && { logo: FileService.saveFile('./uploads', newLogo) }),
+      },
     }, { new: true });
     return updatedSite;
   }
-  static async createHistory(siteId, options) {
+  static async createHistory(domain, options) {
     const { balance, transactions, purchases } = options;
+    const { siteId } = await Site.findOne({ domain });
     const history = await History.create({
       siteId,
       balance,
       transactions,
       purchases,
-      created: Date.now(),
-      updated: Date.now(),
     });
     return history;
-  }
-  static async getHistories() {
-    const histories = await History.find();
-    return histories;
   }
   static async getHistoriesById(siteId, historyId) {
     const history = await History.findById(historyId);
@@ -84,9 +86,72 @@ class NotificationService extends ContainsService {
         ...(balance && { balance }),
         ...(transactions && { transactions }),
         ...(purchases && { purchases }),
-        updated: Date.now(),
       },
     }, { new: true });
+  }
+  static async isHistoryExist(historyId) {
+    return History.exists({ _id: historyId });
+  }
+  static async updateHistories(items) {
+    const assetIdArray = items.map(({ assetId }) => assetId);
+    const historyArray = await History.find({ assetId: { $in: assetIdArray } });
+    const updatedHistories = items.map((item) => {
+      const { assetId, transaction, steamId } = item;
+      const { transactions = [] } = historyArray.find(({ assetId: id }) => assetId === id) || {};
+      if (!transactions.includes(transaction)) {
+        transactions.push(transaction);
+      }
+      return {
+        ...this.getItemInfo(transactions),
+        steamId,
+        assetId,
+        transactions,
+      };
+    });
+    await History.bulkWrite(
+      updatedHistories.map((history) => ({
+        updateOne: {
+          filter: { assetId: history.assetId },
+          update: { $set: history },
+          upsert: true,
+          strict: true,
+        },
+      })),
+    ).catch((error) => console.log(error));
+  }
+  static async getHistories(domains, steamId, options) {
+    const {
+      method = ['All'],
+      status = ['All'],
+      dateFrom = 0,
+      dateTo = Date.now(),
+      sortBy = 'createdAt',
+      page = 0,
+      limit = 15,
+      sort = 'desc',
+    } = options;
+    const filter = {
+      transactions: {
+        $elemMatch: {
+          location: {
+            $in: domains,
+          },
+        },
+      },
+      steamId,
+      [sortBy]: {
+        $gte: new Date(dateFrom),
+        $lte: new Date(dateTo),
+      },
+      ...(method[0] !== 'All' && { method: { $in: method } }),
+      ...(status[0] !== 'All' && { status: { $in: status } }),
+    };
+    const count = await History.countDocuments(filter);
+    const history = await History.find(filter)
+      .sort({ [sortBy]: sort })
+      .skip(page * limit)
+      .limit(limit);
+    return [history, count];
   }
 }
 

@@ -10,6 +10,20 @@ class ContainsService {
         return false;
     }
   }
+  static async isEmptyString(string) {
+    return string && string.length === 0;
+  }
+  static async isJson(structure) {
+    try {
+      JSON.parse(structure);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+  static async isArray(structure) {
+    return structure instanceof Array;
+  }
 }
 
 export default ContainsService;

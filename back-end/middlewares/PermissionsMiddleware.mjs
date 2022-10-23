@@ -6,13 +6,12 @@ dotenv.config();
 
 const middleware = function (accessed = 'nobody', denied = 'banned') {
   return function (req, res, next) {
-    const { user = {} } = req.session;
     const {
       userId,
       permission = 'nobody',
       isBanned = false,
       isAdmin = false,
-    } = user;
+    } = req.session.user;
     const accessedPermission = permissionsPriority[permission] < permissionsPriority[accessed];
     const deniedPermission = permissionsPriority[permission] > permissionsPriority[denied];
 

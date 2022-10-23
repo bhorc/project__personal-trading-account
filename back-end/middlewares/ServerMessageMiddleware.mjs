@@ -13,7 +13,6 @@ const handler = async (err, req, res, next) => {
         location: event.type,
         message,
         seen: false,
-        updated: Date.now(),
       });
     } */
     return res.status(statusCode).json({ message, data });

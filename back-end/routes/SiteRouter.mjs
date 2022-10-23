@@ -4,14 +4,11 @@ import Permission from '../middlewares/PermissionsMiddleware.mjs';
 
 const router = new Router();
 
-router.get('/getSites', SiteController.getSites);
-router.get('/getSites/:siteId', SiteController.getSiteById);
+router.get('/', SiteController.getSites);
+router.delete('/', Permission('admin'), SiteController.deleteSite);
+router.put('/', Permission('admin'), SiteController.updateSite);
 router.post('/createSite', Permission('admin'), SiteController.createSite);
-router.delete('/getSites/:siteId', Permission('admin'), SiteController.deleteSite);
-router.put('/getSites/:siteId', Permission('admin'), SiteController.updateSite);
-router.post('/getSites/:siteId/createHistory', Permission('user'), SiteController.createHistory);
-router.get('/getSites/:siteId/histories/', Permission('user'), SiteController.getHistories);
-router.get('/getSites/:siteId/histories/:historyId', Permission('user'), SiteController.getHistoriesById);
-router.put('/getSites/:siteId/histories/:historyId', Permission('user'), SiteController.updateHistory);
+router.post('/createHistory', Permission('user'), SiteController.createHistory);
+router.get('/getHistories', Permission('user'), SiteController.getHistories);
 
 export default router;

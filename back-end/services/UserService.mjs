@@ -33,22 +33,19 @@ class UserService extends ContainsService {
         return setPermission;
     }
   }
-  static async getUser(...options) {
-    const user = await User.findOne({ options });
-    return user;
-  }
   static async cryptPassword(password) {
     const hashPassword = await bcrypt.hash(password, 10);
     return hashPassword;
   }
   // Services for group manipulation
-  static async login(login, user) {
+  static async login(login) {
     const {
-      _id: userId, permission, isBanned, isAdmin,
+      _id: userId, permission, isBanned, isAdmin, steamId,
     } = await User.findOne({ login });
-    Object.assign(user, {
-      userId, permission, isBanned, isAdmin,
-    });
+    console.log(userId, permission, isBanned, isAdmin, steamId);
+    return {
+      userId, permission, isBanned, isAdmin, steamId,
+    };
   }
   static async logout(session) {
     session.destroy();
@@ -71,20 +68,34 @@ class UserService extends ContainsService {
     });
   }
   static async editProfile(userId, options = {}) {
-    const { password } = options;
-    const updateOptions = { ...options, updated: Date.now() };
-    if (password) {
-      updateOptions.password = await this.cryptPassword(password);
+    const { password: newPassword } = options;
+    const updateOptions = { ...options };
+    if (newPassword) {
+      updateOptions.password = await this.cryptPassword(newPassword);
     }
-    await User.updateOne({ _id: userId }, { $set: updateOptions });
+    const {
+      permission, isBanned, isAdmin, steamId,
+    } = await User.findOneAndUpdate({ _id: userId }, { $set: updateOptions }, { new: true });
+    return {
+      userId, permission, isBanned, isAdmin, steamId,
+    };
   }
-  static async setPermission(userId, permission, isImportant = false) {
-    const { permission: userPermission } = await User.findOne({ _id: userId });
-    const updateOptions = { permission, updated: Date.now() };
-    if (!isImportant) {
-      updateOptions.permission = this.getPriorityPermission(userPermission, permission);
+  static async setPermission(userId, newPermission, priority) {
+    const { permission: userPermission } = await UserService.getUserById(userId);
+    let setPermission = newPermission;
+    if (priority) {
+      setPermission = await this.getPriorityPermission(userPermission, newPermission);
     }
-    await User.updateOne({ _id: userId }, { $set: updateOptions });
+    const {
+      permission, isBanned, isAdmin, steamId,
+    } = await User.findOneAndUpdate(
+      { _id: userId },
+      { $set: { permission: setPermission } },
+      { new: true },
+    );
+    return {
+      userId, permission, isBanned, isAdmin, steamId,
+    };
   }
   static async getUserById(userId) {
     const findUser = await User.findById(userId);

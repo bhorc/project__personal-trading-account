@@ -1,6 +1,5 @@
-class SteamParser extends DefaultParser {
+class SteamParser  {
     constructor(){
-        super();
         this.response = {};
         this.html = '';
         this.descriptions = {};
@@ -33,23 +32,22 @@ class SteamParser extends DefaultParser {
             });
         }
 
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(this.response.html, "application/xml");
-        const rows = doc.querySelectorAll('.tradehistoryrow');
-        for (let row of [...rows]){
-            let event = row.querySelector('.tradehistory_event_description').firstChild.textContent.trim();
-            let {href: profileURL, innerText: username} = row.querySelector('.tradehistory_event_description a') || {};
-            let date = row.querySelector('.tradehistory_date').firstChild.textContent.trim();
-            let time12h = row.querySelector('.tradehistory_timestamp').innerText.trim();
-            let time = convertTime(time12h);
-            let timestamp = Date.parse(`${date} ${time}`);
-            let itemsGroups = [...row.querySelectorAll('.tradehistory_items')];
-            let receivedGroup = itemsGroups.find(group => group.querySelector('.tradehistory_items_plusminus').innerText === '+');
-            let deletedGroup = itemsGroups.find(group => group.querySelector('.tradehistory_items_plusminus').innerText === '-');
-            let received = getTradeItemsData(receivedGroup);
-            let deleted = getTradeItemsData(deletedGroup);
-            this.trades.push({ event, timestamp, tradeInfo: { profileURL, username }, items: { received, deleted }});
-        }
-        return this.trades.sort((a,b) => b.timestamp - a.timestamp);
+        // const { document } = dom.window;
+        // const rows = document.querySelectorAll('.tradehistoryrow');
+        // for (let row of [...rows]){
+        //     let event = row.querySelector('.tradehistory_event_description').firstChild.textContent.trim();
+        //     let {href: profileURL, innerText: username} = row.querySelector('.tradehistory_event_description a') || {};
+        //     let date = row.querySelector('.tradehistory_date').firstChild.textContent.trim();
+        //     let time12h = row.querySelector('.tradehistory_timestamp').innerText.trim();
+        //     let time = convertTime(time12h);
+        //     let timestamp = Date.parse(`${date} ${time}`);
+        //     let itemsGroups = [...row.querySelectorAll('.tradehistory_items')];
+        //     let receivedGroup = itemsGroups.find(group => group.querySelector('.tradehistory_items_plusminus').innerText === '+');
+        //     let deletedGroup = itemsGroups.find(group => group.querySelector('.tradehistory_items_plusminus').innerText === '-');
+        //     let received = getTradeItemsData(receivedGroup);
+        //     let deleted = getTradeItemsData(deletedGroup);
+        //     this.trades.push({ event, timestamp, tradeInfo: { profileURL, username }, items: { received, deleted }});
+        // }
+        // return this.trades.sort((a,b) => b.timestamp - a.timestamp);
     }
 }

@@ -20,21 +20,19 @@ class UserController {
   // Permission 'nobody'
   static async login(req, res, next) {
     try {
-      const { user = {} } = req.session;
       const { login, password } = req.body;
       switch (false) {
-        case await UserService.isEmpty(user):
+        case await UserService.isEmpty(req.session.user):
           return next(ServerMessage.conflict('User already logged in'));
         case await UserService.isLoginValid(login):
           return next(ServerMessage.badRequest('User with this login not found'));
         case await UserService.isPasswordCorrect(login, password):
           return next(ServerMessage.badRequest('Password is incorrect'));
         default:
-          await UserService.login(login, user);
+          req.session.user = await UserService.login(login);
           return next(ServerMessage.success('User logged in'));
       }
     } catch (error) {
-      // TODO: fix error with null data
       return next(ServerMessage.serverError(error));
     }
   }
@@ -61,10 +59,16 @@ class UserController {
       switch (true) {
         case await UserService.isEmpty(req.body):
           return next(ServerMessage.badRequest('No data to update'));
+        case await UserService.isEmptyString(login):
+          return next(ServerMessage.badRequest('Login is empty'));
+        case await UserService.isEmptyString(password):
+          return next(ServerMessage.badRequest('Password is empty'));
+        case await UserService.isEmptyString(username):
+          return next(ServerMessage.badRequest('Username is empty'));
         case await UserService.isLoginValid(login):
           return next(ServerMessage.conflict('User with this login already exists'));
         default:
-          await UserService.editProfile(userId, { login, password, username });
+          req.session.user = await UserService.editProfile(userId, { login, password, username });
           return next(ServerMessage.success('User updated'));
       }
     } catch (error) {

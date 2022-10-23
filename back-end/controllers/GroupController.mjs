@@ -13,6 +13,7 @@ class GroupController {
           return next(ServerMessage.badRequest('User already in group'));
         default:
           await GroupService.createGroup(userId, { name });
+          req.session.user = await UserService.setPermission(userId, 'groupOwner', true);
           return next(ServerMessage.success('Group created'));
       }
     } catch (error) {
@@ -50,6 +51,7 @@ class GroupController {
           return next(ServerMessage.badRequest('User not in this group'));
         default:
           await GroupService.deleteGroup(userId, groupId);
+          req.session.user = await UserService.setPermission(userId, 'user', false);
           return next(ServerMessage.success('Group deleted'));
       }
     } catch (error) {
@@ -66,8 +68,6 @@ class GroupController {
           return next(ServerMessage.badRequest('Group not found'));
         case await GroupService.isUserInGroup(userId, groupId):
           return next(ServerMessage.badRequest('User not in this group'));
-        case !(await GroupService.isUserInGroupIsOwner(userId)):
-          return next(ServerMessage.badRequest('Group owner can\'t leave group'));
         default:
           await GroupService.kickUserFromGroup(userId, groupId);
           return next(ServerMessage.badRequest('User left group'));

@@ -2,9 +2,6 @@
   {
     "domain": "old.cs.money",
     "origin": "https://old.cs.money",
-    "parseInfo": {
-      "inventory": null,
-      "history": "https://old.cs.money/get_purchases"
-    }
+    "parseUrl": "https://old.cs.money/get_purchases"
   }
 ]

@@ -1,12 +1,5 @@
 try {
-    importScripts(
-      "background.js",
-      "adapter/DefaultParser.js",
-      "adapter/OldCsMoneyParser.js",
-      "adapter/SteamParser.js",
-      "adapter/BuffParser.js",
-      "adapter/CsMoneyParser.js",
-    );
+    importScripts("socket.io.min.js", "background.js");
 } catch (e) {
     console.error(e);
 }

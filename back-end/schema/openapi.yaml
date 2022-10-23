@@ -43,7 +43,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: 'User already exists'
+                    example: 'User with this login already exists'
   /user/login:
     post:
       tags:
@@ -71,7 +71,7 @@ paths:
                     type: string
                     example: 'User logged in'
         '400':
-          description: Invalid password
+          description: Incorrect password
           content:
             application/json:
               schema:
@@ -79,7 +79,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: 'Password is invalid'
+                    example: 'Password is incorrect'
         '404':
           description: User not found
           content:
@@ -720,6 +720,155 @@ paths:
                   message:
                     type: string
                     example: 'Notification not found'
+  /site/:
+    get:
+      tags:
+        - site
+      summary: Get all sites
+      description: Get all sites
+      operationId: getSites
+      security: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Sites found'
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Site'
+    delete:
+      tags:
+        - site
+      summary: Delete site by domain name
+      description: Delete site by domain name
+      operationId: deleteSites
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain:
+                  type: string
+                  example: 'cs.money'
+        description: User login
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site deleted'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User is not admin
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not admin'
+    put:
+      tags:
+        - site
+      summary: Update site properties
+      description: Update site properties
+      operationId: UpdateSite
+      parameters:
+        - name: domain
+          in: query
+          description: Domain name of site
+          required: true
+          schema:
+            type: string
+            example: 'cs.money'
+      requestBody:
+        description: Site object that needs to be created
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                domain:
+                  type: string
+                  example: 'cs.money'
+                name:
+                  type: string
+                  example: 'CS.Money'
+                url:
+                  type: string
+                  example: 'https://cs.money'
+                logo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site added'
+                  data:
+                    type: object
+                    $ref: '#/definitions/Site'
+        '401':
+          description: User is not logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not logged in'
+        '403':
+          description: User is not admin
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User is not admin'
+        '409':
+          description: Site already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site already exists'
   /site/createSite:
     post:
       tags:
@@ -735,11 +884,14 @@ paths:
             schema:
               type: object
               properties:
+                domain:
+                  type: string
+                  example: 'cs.money'
                 name:
-                  type: integer
+                  type: string
                   example: 'Site name'
                 url:
-                  type: integer
+                  type: string
                   example: 'https://www.google.com'
                 logo:
                   type: string
@@ -785,224 +937,26 @@ paths:
                   message:
                     type: string
                     example: 'User has no permissions'
-  /site/getSites:
-    get:
-      tags:
-        - site
-      summary: Get all sites
-      description: Get all sites
-      operationId: getSites
-      security: []
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Sites found'
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/definitions/Site'
-  /site/getSites/{siteId}:
-    get:
-      tags:
-        - site
-      summary: Get site by id
-      description: Get site by id
-      operationId: getSite
-      parameters:
-        - name: siteId
-          in: path
-          description: ID of site to return
-          required: true
-          schema:
-            type: string
-            format: _id
-            example: 5f9f1b9b9b9b9b9b9b9b9b9b
-      security: []
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Site found'
-                  data:
-                    type: object
-                    $ref: '#/definitions/Site'
-        '404':
-          description: Site not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Site not found'
-    delete:
-      tags:
-        - site
-      summary: Delete site by id
-      description: Delete site by id (only with permissions admin or superAdmin)
-      operationId: deleteSite
-      parameters:
-        - name: siteId
-          in: path
-          description: ID of site to delete
-          required: true
-          schema:
-            type: string
-            format: _id
-            example: 5f9f1b9b9b9b9b9b9b9b9b9b
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Site deleted'
-        '401':
-          description: User is not logged in
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'User is not logged in'
-        '403':
-          description: User has no permissions
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'User has no permissions'
-        '404':
-          description: Site not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Site not found'
-    put:
-      tags:
-        - site
-      summary: Update site by id
-      description: Update site by id (only with permissions admin or superAdmin)
-      operationId: updateSite
-      parameters:
-        - name: siteId
-          in: path
-          description: ID of site to update
-          required: true
-          schema:
-            type: string
-            example: 5f9f1b9b9b9b9b9b9b9b9b9b
-      requestBody:
-        description: Site object that needs to be updated
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: integer
-                  example: 'Site name'
-                url:
-                  type: integer
-                  example: 'https://www.google.com'
-                logo:
-                  type: string
-                  format: binary
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Site updated'
-        '401':
-          description: User is not logged in
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'User is not logged in'
-        '403':
-          description: User has no permissions
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'User has no permissions'
-        '404':
-          description: Site not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Site not found'
-  /site/getSites/{siteId}/createHistory:
+  /site/createHistory:
     post:
       tags:
         - site
-      summary: Create history for site
-      description: Create history for site
-      operationId: createHistory
-      parameters:
-        - name: siteId
-          in: path
-          description: ID of site to create history
-          required: true
-          schema:
-            type: string
-            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+      summary: Create site history
+      description: Create site history
+      operationId: createSiteHistory
       requestBody:
-        description: History object that needs to be created
+        description: Site object that needs to be created
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/definitions/History'
-            example:
-              transactions: ['Some transaction']
-              purchases: ['Some purchase']
-              balance: 100
+              type: object
+              properties:
+                domain:
+                  type: string
+                  example: 'cs.money'
+                data:
+                  type: object
       responses:
         '200':
           description: successful operation
@@ -1013,7 +967,17 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: 'History created'
+                    example: 'Site created'
+        '400':
+          description: Site not created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Site not created'
         '401':
           description: User is not logged in
           content:
@@ -1034,32 +998,21 @@ paths:
                   message:
                     type: string
                     example: 'User has no permissions'
-        '404':
-          description: Site not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Site not found'
-  /site/getSites/{siteId}/histories:
+  /site/getHistories:
     get:
       tags:
         - site
-      summary: Get history for site
-      description: Get history for site
-      operationId: getHistory
+      summary: Get site histories
+      description: Get site histories
+      operationId: getSiteHistories
       parameters:
-        - name: siteId
-          in: path
-          description: ID of site to get history
+        - name: domain[]
+          in: query
+          description: Domain name of site
           required: true
           schema:
             type: string
-            format: _id
-            example: 5f9f1b9b9b9b9b9b9b9b9b9b
+            example: 'cs.money'
       responses:
         '200':
           description: successful operation
@@ -1070,120 +1023,11 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: 'History found'
+                    example: 'Sites histories'
                   data:
                     type: array
                     items:
-                      $ref: '#/definitions/History'
-        '404':
-          description: Site not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'Site not found'
-  /site/getSites/{siteId}/histories/{historyId}:
-    get:
-      tags:
-        - site
-      summary: Get history by id
-      description: Get history by id
-      operationId: getHistoryById
-      parameters:
-        - name: siteId
-          in: path
-          description: ID of site to get history
-          required: true
-          schema:
-            type: string
-            format: _id
-            example: 5f9f1b9b9b9b9b9b9b9b9b9b
-        - name: historyId
-          in: path
-          description: ID of history to return
-          required: true
-          schema:
-            type: string
-            format: _id
-            example: 5f9f1b9b9b9b9b9b9b9b9b9b
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'History found'
-                  data:
-                    type: object
-                    $ref: '#/definitions/History'
-        '404':
-          description: History not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'History not found'
-    put:
-      tags:
-        - site
-      summary: Update history by id
-      description: Update history by id
-      operationId: updateHistory
-      parameters:
-        - name: siteId
-          in: path
-          description: ID of site to update history
-          required: true
-          schema:
-            type: string
-            format: _id
-            example: 5f9f1b9b9b9b9b9b9b9b9b9b
-        - name: historyId
-          in: path
-          description: ID of history to update
-          required: true
-          schema:
-            type: string
-            format: _id
-            example: 5f9f1b9b9b9b9b9b9b9b9b9b
-      requestBody:
-        description: History object that needs to be updated
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/definitions/History'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'History updated'
-        '404':
-          description: History not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 'History not found'
+                      $ref: '#/definitions/Item'
   /group/create:
     post:
       tags:
@@ -1612,6 +1456,31 @@ paths:
                   message:
                     type: string
                     example: 'Group not found'
+  /history/update:
+    post:
+      tags:
+        - history
+      summary: Update history
+      description: Update history
+      operationId: updateHistory
+      requestBody:
+        description: History object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/Item'
+            example:
+              assetId: "4564654654"
+              fullName: "StatTrak™ M4A1-S | Knight (Factory New)"
+              exterior: "Factory New"
+              iconUrl: "https://steamcommunity-a.akamaihd.net/economy/image/1234567890/200fx200f"
+              souvenir: false
+              stattrak: true
+              itemType: "Weapon"
+              weaponType: "Rifle"
+              gunType: "Assault Rifle"
+              rarity: "Classified"
 components:
   schemas:
     User:
@@ -1624,6 +1493,8 @@ components:
       $ref: '#/definitions/History'
     Notification:
       $ref: '#/definitions/Notification'
+    Item:
+      $ref: '#/definitions/Item'
     ApiResponse:
       $ref: '#/definitions/ApiResponse'
   securitySchemes:
@@ -1843,6 +1714,65 @@ definitions:
         default: 1663117006355
     xml:
       name: notification
+  Item:
+    required:
+      - assetId
+      - fullName
+      - exterior
+      - iconUrl
+      - souvenir
+      - stattrak
+      - itemType
+      - weaponType
+      - gunType
+      - rarity
+    type: object
+    properties:
+      _id:
+        type: ObjectId
+        format: _id
+        example: 63080201e3957808e2bebe61
+      type:
+        type: string
+        default: Types
+      assetId:
+        type: string
+        example: 1234567890
+      fullName:
+        type: string
+        example: StatTrak™ M4A1-S | Knight (Factory New)
+      exterior:
+        type: string
+        example: Factory New
+      iconUrl:
+        type: string
+        example: https://steamcommunity-a.akamaihd.net/economy/image/1234567890/200fx200f
+      souvenir:
+        type: boolean
+        default: false
+      stattrak:
+        type: boolean
+        default: false
+      itemType:
+        type: string
+        example: Weapon
+      weaponType:
+        type: string
+        example: Rifle
+      gunType:
+        type: string
+        example: Assault Rifle
+      rarity:
+        type: string
+        example: Classified
+      createdAt:
+        type: number
+        default: 1663117006355
+      updatedAt:
+        type: number
+        default: 1663117006355
+    xml:
+      name: item
   ApiResponse:
     type: object
     properties:
