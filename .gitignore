@@ -3,5 +3,10 @@ back-end/gen/
 back-end/.env.development
 back-end/.idea
 back-end/.vscode
+front-end/node_modules/
+front-end/.idea
+front-end/.vscode
+front-end/.env.development
+node_modules/
 
 .idea/

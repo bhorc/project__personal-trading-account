@@ -1,5 +1,12 @@
 # Back-end of Personal trading account project
 
+## How to start:
+Install all necessary modules to work with the project, you can run:
+```
+npm install
+```
+Edit environment variables in file ".env.production" according to your server settings
+
 ## Available Scripts:
 
 In the project directory, you can run:
