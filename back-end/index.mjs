@@ -8,6 +8,7 @@ import fileUpload from 'express-fileupload';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import helmet from 'helmet';
 import routers from './routes/Routers.mjs';
 import ServerMessageMiddleware from './middlewares/ServerMessageMiddleware.mjs';
 
@@ -33,9 +34,11 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(cookieParser());
 app.use(fileUpload({}));
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: true, credentials: true }));
 app.use(session({
   secret: SESSION_SECRET_KEY,
+  name: 'connect.sid',
   saveUninitialized: false,
   resave: false,
   cookie: {

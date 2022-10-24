@@ -13,14 +13,14 @@ import { SimpleCtx } from '../../context/SiteHistory';
 const instance = axios.create({
 	withCredentials: true,
 	baseURL: 'http://localhost:3001/api/',
-})
+});
 configure({
 	axios: instance,
 	defaultOptions: {
-		useCache: true,
+		useCache: false,
 	}
 });
-loadCache(JSON.parse(localStorage.getItem('cache') || '[]'));
+// loadCache(JSON.parse(localStorage.getItem('cache') || '[]'));
 
 const MenuProps = {
 	PaperProps: {
@@ -63,9 +63,9 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 			setMethods(Array.from(new Set<string>(histories.map((item: History) => item.method))));
 			setStatus(Array.from(new Set<string>(histories.map((item: History) => item.status))));
 			setTotalCount(Number(response?.headers['x-total-count']));
-			serializeCache().then((cache) => {
-				localStorage.setItem('cache', JSON.stringify(cache));
-			});
+			// serializeCache().then((cache) => {
+			// 	localStorage.setItem('cache', JSON.stringify(cache));
+			// });
 		}
 	}, [data]);
 

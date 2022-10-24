@@ -1,28 +1,9 @@
 import React from 'react';
-import {
-	Box,
-	Button,
-	Checkbox,
-	FormControl,
-	FormControlLabel,
-	Grid,
-	IconButton,
-	InputAdornment,
-	InputLabel,
-	Link,
-	OutlinedInput,
-	TextField,
-	Typography,
-	useTheme
-} from '@mui/material';
-import {
-	Visibility,
-	VisibilityOff,
-} from '@mui/icons-material';
 import axios from 'axios';
+import { Box, Button, Checkbox, FormControl, FormControlLabel, Grid, IconButton, InputAdornment, InputLabel, Link, OutlinedInput, TextField, Typography, useTheme } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import HeaderMenu from '../UI/HeaderMenu';
 
 const formWidth = 450;
 type State = {
@@ -40,7 +21,7 @@ const Login = () => {
 	const { palette } = useTheme();
 	const fetchLogin = (data: FormData) => {
 		axios
-			.post<ServerAnswer>('http://localhost:3001/api/user/login', data)
+			.post<ServerAnswer>('http://localhost:3001/api/user/login', data, { withCredentials: true })
 			.then((res) => {
 				localStorage.setItem('authenticated', String(true));
 				navigate('/');
