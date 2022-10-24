@@ -4,7 +4,7 @@ import { Check as CheckIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-mat
 import axios from 'axios';
 import useAxios, { configure, loadCache, serializeCache } from 'axios-hooks';
 
-import { Types, History, AppContextInterface } from '../../types/Types';
+import { Item, History, AppContextInterface } from '../../types/Types';
 import MyPaper from '../Paper/Paper';
 import SiteStatistic from './SiteStatistic';
 import useOnScreen from '../../hooks/useOnScreen';
@@ -32,7 +32,7 @@ const MenuProps = {
 
 const SiteHistory = ({ domain }: { domain: string }) => {
 	const { dateTo, dateFrom } = useContext<AppContextInterface>(SimpleCtx);
-	const [items, setItems] = useState<Types[]>([]);
+	const [items, setItems] = useState<Item[]>([]);
 	const [histories, setHistories] = useState<History[]>([]);
 	const [methods, setMethods] = useState<string[]>([]);
 	const [status, setStatus] = useState<string[]>([]);
@@ -101,7 +101,6 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 			</MyPaper>
 			<Box display="flex" gap="6px">
 				<Autocomplete
-					id="free-solo-demo"
 					freeSolo
 					size="small"
 					value={search}
@@ -155,7 +154,16 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 			</Box>
 			<Box sx={{ flexDirection: 'column', overflowY: 'scroll', overflowX: 'hidden' }} display="flex" gap="6px">
 				{
-					histories?.length ? histories.map((history: History, index: number, array) => {
+					histories?.length ?
+						histories
+							.filter(({ assetId }: History) => {
+								if (search) {
+									const { fullName = '' } = items.find((item) => item.assetId === assetId) || {};
+									return fullName.toLowerCase().includes(search.toLowerCase());
+								}
+								return true;
+							})
+							.map((history: History, index: number, array) => {
 						const prevHistory = array[index - 1];
 						const { soldTime: prevSoldTime } = prevHistory || {};
 						const {
@@ -191,8 +199,7 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 							weaponType,
 							createdAt,
 							updatedAt,
-						} = items.find((item: Types) => item.assetId === assetId) as Types;
-						console.log(fullName);
+						} = items.find((item: Item) => item.assetId === assetId) as Item;
 						const updatedTime = new Date(soldTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 						const updatedDate = new Date(soldTime).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});
 						const prevUpdatedDate = new Date(prevSoldTime).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});

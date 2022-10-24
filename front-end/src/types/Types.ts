@@ -1,6 +1,6 @@
-import {Dayjs} from "dayjs";
+import {Dayjs} from 'dayjs';
 
-export interface Types {
+export interface Item {
 	_id?: number | object;
 	assetId: string;
 	exterior: string;
