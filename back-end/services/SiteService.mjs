@@ -123,12 +123,11 @@ class NotificationService extends ContainsService {
     const {
       // method = ['All'],
       // status = ['All'],
+      page = 0,
+      limit = 15,
       dateFrom = 0,
       dateTo = Date.now(),
       sortBy = 'createdAt',
-      page = 0,
-      limit = 15,
-      sort = 'desc',
     } = options;
     const filter = {
       transactions: {
@@ -148,7 +147,6 @@ class NotificationService extends ContainsService {
     };
     const count = await History.countDocuments(filter);
     const history = await History.find(filter)
-      .sort({ [sortBy]: sort })
       .skip(page * limit)
       .limit(limit)
       .select('-_id -type');

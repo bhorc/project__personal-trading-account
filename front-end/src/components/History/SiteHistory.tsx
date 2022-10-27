@@ -3,11 +3,11 @@ import { Chip, Typography, Accordion, AccordionDetails, AccordionSummary, Box, T
 import { Check as CheckIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import axios from 'axios';
 import useAxios, { configure, loadCache, serializeCache } from 'axios-hooks';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { Item, History, AppContextInterface } from '../../types/Types';
 import MyPaper from '../Paper/Paper';
 import SiteStatistic from './SiteStatistic';
-import useOnScreen from '../../hooks/useOnScreen';
 import { SimpleCtx } from '../../context/SiteHistory';
 
 const instance = axios.create({
@@ -47,7 +47,6 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 		params: {
 			domain,
 			page,
-			sort: 'desc',
 			sortBy: 'soldTime',
 			// 'method[]': filterMethod.length ? filterMethod.join(',') : ['All'],
 			// 'status[]': filterState.length ? filterState.join(',') : ['All'],
@@ -87,14 +86,6 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 		});
 		setFilteredHistories(filteredHistory);
 	}, [histories, filterSearch, filterMethod, filterState]);
-
-	const elementRef = useRef<HTMLDivElement>(null);
-	const isOnScreen = useOnScreen(elementRef, [page]);
-	useEffect(() => {
-		if (histories.length < totalCount && isOnScreen && !loading) {
-			setPage(prevPage => prevPage + 1);
-		}
-	}, [isOnScreen]);
 
 	const [expanded, setExpanded] = useState<string | false>(false);
 	const handleChangeAccordion =
@@ -136,8 +127,8 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 						renderValue={(selected) => selected.join(', ')}
 						MenuProps={MenuProps}
 					>
-						{methods.map((method, index) => (
-							<MenuItem key={index} value={method}>
+						{methods.map((method) => (
+							<MenuItem key={method} value={method}>
 								<Checkbox checked={filterMethod.indexOf(method) > -1} />
 								<ListItemText primary={method} />
 							</MenuItem>
@@ -156,8 +147,8 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 						renderValue={(selected) => selected.join(', ')}
 						MenuProps={MenuProps}
 					>
-						{status.map((method, index) => (
-							<MenuItem key={index} value={method}>
+						{status.map((method) => (
+							<MenuItem key={method} value={method}>
 								<Checkbox checked={filterState.indexOf(method) > -1} />
 								<ListItemText primary={method} />
 							</MenuItem>
@@ -165,131 +156,105 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 					</Select>
 				</FormControl>
 			</Box>
-			<Box sx={{ flexDirection: 'column', overflowY: 'scroll', overflowX: 'hidden' }} display="flex" gap="6px">
-				{
-					filteredHistories?.length ? filteredHistories.map((history: History, index: number, array) => {
-						const prevHistory = array[index - 1];
-						const { soldTime: prevSoldTime } = prevHistory || {};
-						const {
-							transactions,
-							assetId,
-							location,
-							status,
-							method,
-							buyPrice,
-							salePrice,
-							soldPrice,
-							buyTime,
-							saleTime,
-							soldTime,
-							feeFunds,
-							feePercent,
-						} = history;
-						const {
-							exterior,
-							float,
-							fullName,
-							gunType,
-							iconUrl,
-							inspectLink,
-							itemType,
-							pattern,
-							rarity,
-							souvenir,
-							stattrak,
-							stickers,
-							tournament,
-							type,
-							weaponType,
-							createdAt,
-							updatedAt,
-						} = items.find((item: Item) => item.assetId === assetId) as Item;
-						const updatedTime = new Date(soldTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-						const updatedDate = new Date(soldTime).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});
-						const prevUpdatedDate = new Date(prevSoldTime).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});
-						const profit = soldPrice - buyPrice - feeFunds;
-						const isProfitable = profit > 0;
-						return (
-							<React.Fragment key={assetId}>
-								{
-									prevUpdatedDate !== updatedDate && (
-										<Typography variant="subtitle2">
-											{updatedDate}
-										</Typography>
-									)
-								}
-								<Accordion expanded={expanded === assetId} onChange={handleChangeAccordion(assetId)}>
-									<AccordionSummary
-										expandIcon={<ExpandMoreIcon />}
-										sx={{
-											display: 'flex',
-											justifyContent: 'space-between',
-											alignItems: 'center',
-											p: '0 6px 0 12px',
-											'& > *': {
-												alignItems: 'center',
-												justifyContent: 'space-between',
-											}
-										}}
-									>
-										<Typography variant="subtitle2" sx={{ width: '2.25rem' }}>{updatedTime}</Typography>
-										<Typography variant="subtitle2" sx={{ width: '5.65rem' }}>
-											<Chip
-												size="small"
-												color="success"
-												label={method}
-												icon={<CheckIcon />}
-											/>
-										</Typography>
-										<Typography variant="subtitle2" sx={{ width: '3.75rem', color: 'error.main' }}>
-											{buyPrice ? `$${buyPrice}` : 'null'}
-										</Typography>
-										<Box sx={{ width: '40px', height: '40px', backgroundColor: 'background.gray-700', borderRadius: '0.25rem' }}>
-											<img
-												src={`https://community.akamai.steamstatic.com/economy/image/${iconUrl}`}
-												alt={fullName}
-												style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-												loading="lazy"
-											/>
-										</Box>
-										<Typography variant="subtitle2" sx={{ width: '3.75rem', color: 'primary.main' }}>
-											{salePrice ? `$ ${salePrice}` : ''}
-										</Typography>
-										<Typography variant="subtitle2" sx={{ width: '5rem', color: isProfitable ? 'success.main' : 'error.main' }}>
-											{status === 'sold' ? (isProfitable ? '+' : '-') + ` $ ${Math.abs(profit).toFixed(2)}` : ''}
-										</Typography>
-										<Typography variant="subtitle2" sx={{ width: '6.65rem' }}>
-											<Chip
-												size="small"
-												color="success"
-												label={status}
-												icon={<CheckIcon />}
-											/>
-										</Typography>
-									</AccordionSummary>
-									<AccordionDetails>
-										<Typography>
-											Nulla facilisi. Phasellus sollicitudin nulla et quam mattis feugiat.
-											Aliquam eget maximus est, id dignissim quam.
-										</Typography>
-									</AccordionDetails>
-								</Accordion>
-							</React.Fragment>
-						);
-					}) : (
-						<Typography variant="subtitle2" sx={{ textAlign: 'center' }}>
-							No data
-						</Typography>
-					)
-				}
-				{
-					loading && (
+			<Box id="scrollableContainer" sx={{ overflowY: 'scroll', overflowX: 'hidden' }} display="flex" flexDirection="column" gap="6px">
+				<InfiniteScroll
+					dataLength={filteredHistories.length}
+					next={() => setPage(prevPage => prevPage + 1)}
+					hasMore={histories.length < totalCount}
+					scrollableTarget="scrollableContainer"
+					loader={
 						<Box display='flex' justifyContent='center'>
 							<CircularProgress />
 						</Box>
-					)
-				}
-				<div ref={elementRef} style={{ padding: '1px' }} />
+					}
+					endMessage={
+						<p style={{ textAlign: 'center' }}>
+							<b>Yay! You have seen it all</b>
+						</p>
+					}
+					style={{ overflow: 'hidden' }}
+				>
+					{
+						filteredHistories.map((history: History, index: number, array) => {
+							const prevHistory = array[index - 1];
+							const { soldTime: prevSoldTime, buyTime: prevBuyTime } = prevHistory || {};
+							const { assetId, status, method, buyPrice, buyTime, salePrice, soldPrice, soldTime, feeFunds	} = history;
+							const { fullName,	iconUrl } = items.find((item: Item) => item.assetId === assetId) as Item || {};
+							const updatedTime = new Date(soldTime || buyTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+							const updatedDate = new Date(soldTime || buyTime).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});
+							const prevUpdatedDate = new Date(prevSoldTime || prevBuyTime).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});
+							const profit = soldPrice - buyPrice - feeFunds;
+							const isProfitable = profit > 0;
+							return (
+								<React.Fragment key={assetId}>
+									{
+										prevUpdatedDate !== updatedDate && (
+											<Typography variant="subtitle2">
+												{updatedDate}
+											</Typography>
+										)
+									}
+									<Accordion expanded={expanded === assetId} onChange={handleChangeAccordion(assetId)}>
+										<AccordionSummary
+											expandIcon={<ExpandMoreIcon />}
+											sx={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+												p: '0 6px 0 12px',
+												'& > *': {
+													alignItems: 'center',
+													justifyContent: 'space-between',
+												}
+											}}
+										>
+											<Typography variant="subtitle2" sx={{ width: '2.25rem' }}>{updatedTime}</Typography>
+											<Typography variant="subtitle2" sx={{ width: '5.65rem' }}>
+												<Chip
+													size="small"
+													color="success"
+													label={method}
+													icon={<CheckIcon />}
+												/>
+											</Typography>
+											<Typography variant="subtitle2" sx={{ width: '3.75rem', color: 'error.main' }}>
+												{buyPrice ? `$${buyPrice}` : 'null'}
+											</Typography>
+											<Box sx={{ width: '40px', height: '40px', backgroundColor: 'background.gray-700', borderRadius: '0.25rem' }}>
+												<img
+													src={`https://community.akamai.steamstatic.com/economy/image/${iconUrl}`}
+													alt={fullName}
+													style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+													loading="lazy"
+												/>
+											</Box>
+											<Typography variant="subtitle2" sx={{ width: '3.75rem', color: 'primary.main' }}>
+												{salePrice ? `$ ${salePrice}` : ''}
+											</Typography>
+											<Typography variant="subtitle2" sx={{ width: '5rem', color: isProfitable ? 'success.main' : 'error.main' }}>
+												{status === 'sold' ? (isProfitable ? '+' : '-') + ` $ ${Math.abs(profit).toFixed(2)}` : ''}
+											</Typography>
+											<Typography variant="subtitle2" sx={{ width: '6.65rem' }}>
+												<Chip
+													size="small"
+													color="success"
+													label={status}
+													icon={<CheckIcon />}
+												/>
+											</Typography>
+										</AccordionSummary>
+										<AccordionDetails>
+											<Typography>
+												Nulla facilisi. Phasellus sollicitudin nulla et quam mattis feugiat.
+												Aliquam eget maximus est, id dignissim quam.
+											</Typography>
+										</AccordionDetails>
+									</Accordion>
+								</React.Fragment>
+							);
+						})
+					}
+				</InfiniteScroll>
 			</Box>
 		</Box>
 	);
