@@ -47,7 +47,7 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 		params: {
 			domain,
 			page,
-			sortBy: 'soldTime',
+			// sortBy: 'soldTime',
 			// 'method[]': filterMethod.length ? filterMethod.join(',') : ['All'],
 			// 'status[]': filterState.length ? filterState.join(',') : ['All'],
 			dateTo: dateTo?.format('YYYY-MM-DD'),
