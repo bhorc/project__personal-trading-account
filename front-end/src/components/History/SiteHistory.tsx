@@ -36,9 +36,10 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 	const [histories, setHistories] = useState<History[]>([]);
 	const [methods, setMethods] = useState<string[]>([]);
 	const [status, setStatus] = useState<string[]>([]);
-	const [itemMethod, setItemMethod] = useState<typeof methods>([]);
-	const [itemState, setItemState] = useState<typeof status>([]);
-	const [search, setSearch] = useState<string | null>(null);
+	const [filteredHistories, setFilteredHistories] = useState<typeof histories>([]);
+	const [filterSearch, setFilterSearch] = useState<string | null>(null);
+	const [filterMethod, setFilterMethod] = useState<typeof methods>([]);
+	const [filterState, setFilterState] = useState<typeof status>([]);
 	const [page, setPage] = useState(0);
 	const [totalCount, setTotalCount] = useState(0);
 	const [{ data, loading, error, response }, refetch] = useAxios({
@@ -48,8 +49,8 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 			page,
 			sort: 'desc',
 			sortBy: 'soldTime',
-			'method[]': itemMethod.length ? itemMethod.join(',') : ['All'],
-			'status[]': itemState.length ? itemState.join(',') : ['All'],
+			// 'method[]': filterMethod.length ? filterMethod.join(',') : ['All'],
+			// 'status[]': filterState.length ? filterState.join(',') : ['All'],
 			dateTo: dateTo?.format('YYYY-MM-DD'),
 			dateFrom: dateFrom?.format('YYYY-MM-DD'),
 		},
@@ -57,11 +58,11 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 
 	useEffect(() => {
 		if (data?.data) {
-			const { items, histories } = data.data;
+			const { items = [], histories = [] } = data.data;
 			setItems(prevItems => [...prevItems, ...items]);
 			setHistories(prevHistories => [...prevHistories, ...histories]);
-			setMethods(Array.from(new Set<string>(histories.map((item: History) => item.method))));
-			setStatus(Array.from(new Set<string>(histories.map((item: History) => item.status))));
+			setMethods(Array.from(new Set(histories.map((item: History) => item.method))));
+			setStatus(Array.from(new Set(histories.map((item: History) => item.status))));
 			setTotalCount(Number(response?.headers['x-total-count']));
 			// serializeCache().then((cache) => {
 			// 	localStorage.setItem('cache', JSON.stringify(cache));
@@ -73,7 +74,19 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 		setPage(0);
 		setItems([]);
 		setHistories([]);
-	}, [dateFrom, dateTo, itemMethod, itemState]);
+	}, [dateFrom, dateTo]);
+
+	useEffect(() => {
+		const filteredHistory = histories.filter(({ assetId, status, method }) => {
+			const { fullName = '' } = items.find((item) => item.assetId === assetId) || {};
+			return (
+				(!filterSearch || fullName.toLowerCase().includes(filterSearch.toLowerCase()))
+				&& (!filterMethod.length || filterMethod.includes(method))
+				&& (!filterState.length || filterState.includes(status))
+			);
+		});
+		setFilteredHistories(filteredHistory);
+	}, [histories, filterSearch, filterMethod, filterState]);
 
 	const elementRef = useRef<HTMLDivElement>(null);
 	const isOnScreen = useOnScreen(elementRef, [page]);
@@ -103,9 +116,9 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 				<Autocomplete
 					freeSolo
 					size="small"
-					value={search}
+					value={filterSearch}
 					onChange={(event: any, newValue: string | null) => {
-						setSearch(newValue);
+						setFilterSearch(newValue);
 					}}
 					sx={{ flexGrow: 12, flexBasis: 0 }}
 					options={items.map(({fullName}) => fullName)}
@@ -117,15 +130,15 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 						labelId="SelectMethod-label"
 						id="SelectMethod-select"
 						multiple
-						value={itemMethod}
-						onChange={handleChangeSelect(setItemMethod)}
+						value={filterMethod}
+						onChange={handleChangeSelect(setFilterMethod)}
 						input={<OutlinedInput label="Method" />}
 						renderValue={(selected) => selected.join(', ')}
 						MenuProps={MenuProps}
 					>
 						{methods.map((method, index) => (
 							<MenuItem key={index} value={method}>
-								<Checkbox checked={itemMethod.indexOf(method) > -1} />
+								<Checkbox checked={filterMethod.indexOf(method) > -1} />
 								<ListItemText primary={method} />
 							</MenuItem>
 						))}
@@ -137,15 +150,15 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 						labelId="SelectState-label"
 						id="SelectState-select"
 						multiple
-						value={itemState}
-						onChange={handleChangeSelect(setItemState)}
+						value={filterState}
+						onChange={handleChangeSelect(setFilterState)}
 						input={<OutlinedInput label="State" />}
 						renderValue={(selected) => selected.join(', ')}
 						MenuProps={MenuProps}
 					>
 						{status.map((method, index) => (
 							<MenuItem key={index} value={method}>
-								<Checkbox checked={itemState.indexOf(method) > -1} />
+								<Checkbox checked={filterState.indexOf(method) > -1} />
 								<ListItemText primary={method} />
 							</MenuItem>
 						))}
@@ -154,16 +167,7 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 			</Box>
 			<Box sx={{ flexDirection: 'column', overflowY: 'scroll', overflowX: 'hidden' }} display="flex" gap="6px">
 				{
-					histories?.length ?
-						histories
-							.filter(({ assetId }: History) => {
-								if (search) {
-									const { fullName = '' } = items.find((item) => item.assetId === assetId) || {};
-									return fullName.toLowerCase().includes(search.toLowerCase());
-								}
-								return true;
-							})
-							.map((history: History, index: number, array) => {
+					filteredHistories?.length ? filteredHistories.map((history: History, index: number, array) => {
 						const prevHistory = array[index - 1];
 						const { soldTime: prevSoldTime } = prevHistory || {};
 						const {

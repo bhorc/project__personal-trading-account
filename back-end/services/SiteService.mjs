@@ -121,8 +121,8 @@ class NotificationService extends ContainsService {
   }
   static async getHistories(domains, steamId, options) {
     const {
-      method = ['All'],
-      status = ['All'],
+      // method = ['All'],
+      // status = ['All'],
       dateFrom = 0,
       dateTo = Date.now(),
       sortBy = 'createdAt',
@@ -143,14 +143,15 @@ class NotificationService extends ContainsService {
         $gte: new Date(dateFrom),
         $lte: new Date(dateTo),
       },
-      ...(method[0] !== 'All' && { method: { $in: method } }),
-      ...(status[0] !== 'All' && { status: { $in: status } }),
+      // ...(method[0] !== 'All' && { method: { $in: method } }),
+      // ...(status[0] !== 'All' && { status: { $in: status } }),
     };
     const count = await History.countDocuments(filter);
     const history = await History.find(filter)
       .sort({ [sortBy]: sort })
       .skip(page * limit)
-      .limit(limit);
+      .limit(limit)
+      .select('-_id -type');
     return [history, count];
   }
 }
