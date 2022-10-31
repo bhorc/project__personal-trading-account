@@ -42,7 +42,6 @@ class UserService extends ContainsService {
     const {
       _id: userId, permission, isBanned, isAdmin, steamId,
     } = await User.findOne({ login });
-    console.log(userId, permission, isBanned, isAdmin, steamId);
     return {
       userId, permission, isBanned, isAdmin, steamId,
     };

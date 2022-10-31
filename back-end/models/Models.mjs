@@ -67,7 +67,7 @@ const HistorySchema = new Schema({
     soldTime: { type: Date, default: null },
     feeFunds: { type: Number, default: 0 },
     feePercent: { type: Number, default: 0 },
-    createdAt: { type: Number, default: null },
+    createdAt: { type: Date, default: null },
   }],
   location: { type: String, required: true },
   status: { type: String, required: true },

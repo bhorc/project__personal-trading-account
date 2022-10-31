@@ -1,11 +1,11 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { Chip, Typography, Accordion, AccordionDetails, AccordionSummary, Box, TextField, Autocomplete, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, OutlinedInput, Checkbox, ListItemText } from '@mui/material';
 import { Check as CheckIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import axios from 'axios';
 import useAxios, { configure, loadCache, serializeCache } from 'axios-hooks';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { Item, History, AppContextInterface } from '../../types/Types';
+import { Item, History, AppContextInterface, Status, Method } from '../../types/Types';
 import MyPaper from '../Paper/Paper';
 import SiteStatistic from './SiteStatistic';
 import { SimpleCtx } from '../../context/SiteHistory';
@@ -34,12 +34,10 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 	const { dateTo, dateFrom } = useContext<AppContextInterface>(SimpleCtx);
 	const [items, setItems] = useState<Item[]>([]);
 	const [histories, setHistories] = useState<History[]>([]);
-	const [methods, setMethods] = useState<string[]>([]);
-	const [status, setStatus] = useState<string[]>([]);
 	const [filteredHistories, setFilteredHistories] = useState<typeof histories>([]);
 	const [filterSearch, setFilterSearch] = useState<string | null>(null);
-	const [filterMethod, setFilterMethod] = useState<typeof methods>([]);
-	const [filterState, setFilterState] = useState<typeof status>([]);
+	const [filterMethod, setFilterMethod] = useState<Method[]>([]);
+	const [filterStatus, setFilterStatus] = useState<Status[]>([]);
 	const [page, setPage] = useState(0);
 	const [totalCount, setTotalCount] = useState(0);
 	const [{ data, loading, error, response }, refetch] = useAxios({
@@ -48,8 +46,8 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 			domain,
 			page,
 			// sortBy: 'soldTime',
-			// 'method[]': filterMethod.length ? filterMethod.join(',') : ['All'],
-			// 'status[]': filterState.length ? filterState.join(',') : ['All'],
+			'method[]': filterMethod.length ? filterMethod.join(',') : ['All'],
+			'status[]': filterStatus.length ? filterStatus.join(',') : ['All'],
 			dateTo: dateTo?.format('YYYY-MM-DD'),
 			dateFrom: dateFrom?.format('YYYY-MM-DD'),
 		},
@@ -60,8 +58,6 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 			const { items = [], histories = [] } = data.data;
 			setItems(prevItems => [...prevItems, ...items]);
 			setHistories(prevHistories => [...prevHistories, ...histories]);
-			setMethods(Array.from(new Set(histories.map((item: History) => item.method))));
-			setStatus(Array.from(new Set(histories.map((item: History) => item.status))));
 			setTotalCount(Number(response?.headers['x-total-count']));
 			// serializeCache().then((cache) => {
 			// 	localStorage.setItem('cache', JSON.stringify(cache));
@@ -73,29 +69,20 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 		setPage(0);
 		setItems([]);
 		setHistories([]);
-	}, [dateFrom, dateTo]);
+	}, [dateFrom, dateTo, filterMethod, filterStatus]);
 
 	useEffect(() => {
 		const filteredHistory = histories.filter(({ assetId, status, method }) => {
 			const { fullName = '' } = items.find((item) => item.assetId === assetId) || {};
-			return (
-				(!filterSearch || fullName.toLowerCase().includes(filterSearch.toLowerCase()))
-				&& (!filterMethod.length || filterMethod.includes(method))
-				&& (!filterState.length || filterState.includes(status))
-			);
+			return !filterSearch || fullName.toLowerCase().includes(filterSearch.toLowerCase());
 		});
 		setFilteredHistories(filteredHistory);
-	}, [histories, filterSearch, filterMethod, filterState]);
+	}, [histories, filterSearch]);
 
 	const [expanded, setExpanded] = useState<string | false>(false);
 	const handleChangeAccordion =
 		(expanded: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
 			setExpanded(isExpanded ? expanded : false);
-		};
-
-	const handleChangeSelect =
-		(setState: React.Dispatch<React.SetStateAction<string[]>>) => ({ target }: SelectChangeEvent<string[]>) => {
-			setState(typeof target.value === 'string' ? target.value.split(',') : target.value);
 		};
 
 	return (
@@ -112,7 +99,7 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 						setFilterSearch(newValue);
 					}}
 					sx={{ flexGrow: 12, flexBasis: 0 }}
-					options={items.map(({fullName}) => fullName)}
+					options={Array.from(new Set(items.map((item) => item.fullName)))}
 					renderInput={(params) => <TextField {...params} label="Search" />}
 				/>
 				<FormControl size="small" sx={{ flexGrow: 5, flexBasis: 0 }}>
@@ -122,12 +109,12 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 						id="SelectMethod-select"
 						multiple
 						value={filterMethod}
-						onChange={handleChangeSelect(setFilterMethod)}
+						onChange={({ target }) => setFilterMethod(target.value as Method[])}
 						input={<OutlinedInput label="Method" />}
 						renderValue={(selected) => selected.join(', ')}
 						MenuProps={MenuProps}
 					>
-						{methods.map((method) => (
+						{Object.values(Method).map((method) => (
 							<MenuItem key={method} value={method}>
 								<Checkbox checked={filterMethod.indexOf(method) > -1} />
 								<ListItemText primary={method} />
@@ -141,22 +128,22 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 						labelId="SelectState-label"
 						id="SelectState-select"
 						multiple
-						value={filterState}
-						onChange={handleChangeSelect(setFilterState)}
+						value={filterStatus}
+						onChange={({ target }) => setFilterStatus(target.value as Status[])}
 						input={<OutlinedInput label="State" />}
 						renderValue={(selected) => selected.join(', ')}
 						MenuProps={MenuProps}
 					>
-						{status.map((method) => (
-							<MenuItem key={method} value={method}>
-								<Checkbox checked={filterState.indexOf(method) > -1} />
-								<ListItemText primary={method} />
+						{Object.values(Status).map((status) => (
+							<MenuItem key={status} value={status}>
+								<Checkbox checked={filterStatus.indexOf(status) > -1} />
+								<ListItemText primary={status} />
 							</MenuItem>
 						))}
 					</Select>
 				</FormControl>
 			</Box>
-			<Box id="scrollableContainer" sx={{ overflowY: 'scroll', overflowX: 'hidden' }} display="flex" flexDirection="column" gap="6px">
+			<Box id="scrollableContainer" sx={{ overflowY: 'scroll', overflowX: 'hidden' }} display="flex" flexDirection="column">
 				<InfiniteScroll
 					dataLength={filteredHistories.length}
 					next={() => setPage(prevPage => prevPage + 1)}
@@ -172,7 +159,12 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 							<b>Yay! You have seen it all</b>
 						</p>
 					}
-					style={{ overflow: 'hidden' }}
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '6px',
+						overflow: 'hidden'
+					}}
 				>
 					{
 						filteredHistories.map((history: History, index: number, array) => {

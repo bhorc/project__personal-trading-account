@@ -31,46 +31,46 @@ class defaultAdapter {
   static improveItems(location, steamId, items) {
     return items.map((item) => {
       const {
-        method = undefined,
-        fullName = undefined,
-        buyPrice = undefined,
-        buyTime = undefined,
-        currentSteamId = undefined,
-        assetId = undefined,
-        inspectDetails = undefined,
-        feeFunds = undefined,
-        salePrice = undefined,
-        saleTime = undefined,
-        status = undefined,
-        updateTime = undefined,
+        method = null,
+        fullName = null,
+        buyPrice = null,
+        buyTime = null,
+        currentSteamId = null,
+        assetId = null,
+        inspectDetails = null,
+        feeFunds = null,
+        salePrice = null,
+        saleTime = null,
+        status = null,
+        updateTime = null,
       } = item;
 
       // csgobackpack skinsBase
       const {
         stattrak = false,
         souvenir = false,
-        tournament = undefined,
-        exterior = undefined,
-        rarity = undefined,
-        type: itemType = undefined,
-        gun_type: gunType = undefined,
-        weapon_type: weaponType = undefined,
-        icon_url: iconUrl = undefined,
+        tournament = null,
+        exterior = null,
+        rarity = null,
+        type: itemType = null,
+        gun_type: gunType = null,
+        weapon_type: weaponType = null,
+        icon_url: iconUrl = null,
       } = skinsBase['items_list'][fullName] || {};
 
       const inspectLink = `steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20S${currentSteamId}A${assetId}D${inspectDetails}`;
-      const feePercent = feeFunds ? +((feeFunds / salePrice) * 100).toFixed(2) : undefined;
-      const shortExterior = this.short_exterior[exterior] || undefined;
-      const soldPrice = salePrice || undefined;
-      const soldTime = status === 'sold' ? updateTime : undefined;
+      const feePercent = feeFunds ? +((feeFunds / salePrice) * 100).toFixed(2) : null;
+      const shortExterior = this.short_exterior[exterior] || null;
+      const soldPrice = salePrice || null;
+      const soldTime = status === 'sold' ? updateTime : null;
 
       return {
         ...item,
         steamId,
         transaction: {
           location,
-          status,
-          method,
+          status: status.toLowerCase(),
+          method: method.toLowerCase(),
           buyPrice,
           salePrice,
           soldPrice,

@@ -25,8 +25,8 @@ export interface Item {
 export interface Transaction {
 	_id?: number | object;
 	location: string;
-	status: string;
-	method: string;
+	status: Status;
+	method: Method;
 	buyPrice: number;
 	salePrice: number;
 	soldPrice: number;
@@ -35,6 +35,18 @@ export interface Transaction {
 	soldTime: number;
 	feeFunds: number;
 	feePercent: number;
+}
+
+export enum Status {
+	sold = 'sold',
+	onSale = 'on sale',
+	inventory = 'inventory',
+}
+
+export enum Method {
+	trade = 'trade',
+	deposit = 'deposit',
+	auction = 'auction',
 }
 
 export interface History extends Transaction {
