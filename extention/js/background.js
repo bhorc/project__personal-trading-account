@@ -1,4 +1,11 @@
-const server_url = "http://localhost:3001";
+const SERVER_URL = "http://localhost:3001";
+const TIME_UNITS = {
+	get SECOND() { return 1000 },
+	get MINUTE() { return 60 * this.SECOND },
+	get HOUR() { return 60 * this.MINUTE },
+	get DAY() { return 24 * this.HOUR },
+	get MONTH() { return 30 * this.DAY },
+}
 
 class ParserManager {
 	constructor(fileName) {
@@ -14,16 +21,21 @@ class ParserManager {
 	}
 }
 class Parser {
-	constructor({ domain, origin, parseUrl }) {
-		this.steamId = null;
+	static cookies;
+	static steamId;
+	constructor({ domain, origin, description, parseOptions: { url, query, loop, response } }) {
 		this.data = [];
 		this.domain = domain;
 		this.origin = origin;
-		this.parseUrl = parseUrl;
+		this.description = description;
+		this.url = url;
+		this.query = query || {};
+		this.response = response || {};
+		this.loop = loop || false;
 		this.init();
 	}
 	async #getCookie(domain = this.domain) {
-		return await new Promise((resolve, reject) => {
+		this.cookies = await new Promise((resolve, reject) => {
 			chrome.cookies.getAll({ domain }, (cookies) => {
 				if (chrome.runtime.lastError) {
 					reject(chrome.runtime.lastError);
@@ -33,11 +45,11 @@ class Parser {
 				}
 			});
 		});
+		this.steamId = this.cookies.match(new RegExp(/(765\d{14})/g))[0];
 	}
-	async #parse(url){
-		const Cookie = await this.#getCookie();
-		if (!url || !this.origin || !Cookie) return [];
-		this.steamId = Cookie.match(new RegExp(/(765\d{14})/g))[0];
+	async #parseData() {
+		await this.#getCookie();
+		if (!this.url || !this.origin || !this.cookies) return;
 		const declarativeNetRequestRules = [{
 			id: 1,
 			action: {
@@ -58,23 +70,60 @@ class Parser {
 			removeRuleIds: declarativeNetRequestRules.map(r => r.id),
 			addRules: declarativeNetRequestRules,
 		});
-		return await fetch(url, { headers: { Cookie } })
+		await fetch(this.url + '?' + new URLSearchParams(this.query), {
+			method: 'GET',
+			headers: {
+				Cookie: this.cookies,
+			}
+		})
 			.then(res => res.json())
+			.then(res => {
+				this.data = res;
+			})
 			.catch((exc) => {
 				throw new Error(exc);
 			});
 	}
-	async init(){
-		this.data = await this.#parse(this.parseUrl);
-		await fetch(server_url + '/api/site/createHistory', {
+	async updateHistory() {
+		await this.#parseData();
+		if (this.data instanceof Array && this.data.length === 0) return;
+		if (this.data instanceof Object && Object.keys(this.data).length === 0) return;
+
+		const { domain, steamId, data } = this;
+		await fetch(SERVER_URL + '/api/site/createHistory', {
 			method: 'POST',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({
-				domain: this.domain,
-				steamId: this.steamId,
-				data: this.data,
-			}),
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ domain, steamId, data }),
 		});
+	}
+	async init() {
+		await this.updateHistory();
+		if (this.loop) {
+			const timer = setInterval(() => {
+				this.response.forEach((key, value) => {
+					switch (true) {
+						case typeof value === 'number' && this.data[key].length >= value:
+						case typeof value === 'string' && this.data[key] === value:
+							return;
+						default:
+							clearInterval(timer);
+					}
+				});
+				this.loop.forEach((key, value) => {
+					switch (typeof value) {
+						case 'number':
+							this.query[key] += value;
+							break;
+						case 'string':
+							this.query[key] = value;
+							break;
+						default:
+							return;
+					}
+				});
+				this.updateHistory();
+			}, 30 * TIME_UNITS.MINUTE);
+		}
 	}
 }
 

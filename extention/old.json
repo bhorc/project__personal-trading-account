@@ -1,34 +1,32 @@
 [
   {
-    "domain": "cs.money",
-    "origin": "https://cs.money",
-    "parseInfo": {
-      "inventory": "https://cs.money/3.0/load_user_inventory/730?isPrime=false&limit=60&noCache=true&offset=0&order=desc&sort=price&withStack=true",
-      "transactions": null
-    }
-  },
-  {
     "domain": "old.cs.money",
     "origin": "https://old.cs.money",
-    "parseInfo": {
-      "inventory": null,
-      "transactions": "https://old.cs.money/get_transactions"
+    "parseOptions": {
+      "url": "https://old.cs.money/get_purchases"
     }
   },
   {
-    "domain": "buff.163.com",
-    "origin": "https://buff.163.com",
-    "parseInfo": {
-      "inventory": null,
-      "transactions": null
-    }
-  },
-  {
-    "domain": "steamcommunity.com",
-    "origin": "https://steamcommunity.com",
-    "parseInfo": {
-      "inventory": "https://steamcommunity.com/inventory/76561198139995771/730/2?l=english&count=5000",
-      "history": "https://steamcommunity.com/profiles/76561198139995771/inventoryhistory/?ajax=1&cursor%5Btime%5D=1663028575&cursor%5Btime_frac%5D=223000000&cursor%5Bs%5D=6041432742&app%5B%5D=730"
+    "domain": "cs.money",
+    "origin": "https://cs.money",
+    "description": "Parse inventory",
+    "parseOptions": {
+      "url": "https://cs.money/3.0/load_user_inventory/730",
+      "query": {
+        "isPrime": false,
+        "limit": 60,
+        "noCache": true,
+        "offset": 0,
+        "order": "desc",
+        "sort": "price",
+        "withStack": true
+      },
+      "loop": {
+        "offset": 60
+      },
+      "response": {
+        "items": 60
+      }
     }
   }
 ]

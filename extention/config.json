@@ -1,7 +1,25 @@
 [
   {
-    "domain": "old.cs.money",
-    "origin": "https://old.cs.money",
-    "parseUrl": "https://old.cs.money/get_purchases"
+    "domain": "cs.money",
+    "origin": "https://cs.money",
+    "description": "Parse inventory",
+    "parseOptions": {
+      "url": "https://cs.money/3.0/load_user_inventory/730",
+      "query": {
+        "isPrime": false,
+        "limit": 60,
+        "noCache": true,
+        "offset": 0,
+        "order": "desc",
+        "sort": "price",
+        "withStack": true
+      },
+      "loop": {
+        "offset": 60
+      },
+      "response": {
+        "items": 60
+      }
+    }
   }
 ]
