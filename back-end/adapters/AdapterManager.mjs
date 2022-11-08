@@ -36,6 +36,7 @@ class defaultAdapter extends ContainsService {
         collectionName = null,
         overpay = null,
       } = item;
+      delete item.type;
 
       // csgobackpack skinsBase
       const {
