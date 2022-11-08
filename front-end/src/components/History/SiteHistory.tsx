@@ -1,11 +1,12 @@
 import React, {useContext, useEffect, useState} from 'react';
-import { Chip, Typography, Accordion, AccordionDetails, AccordionSummary, Box, TextField, Autocomplete, CircularProgress, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, OutlinedInput, Checkbox, ListItemText } from '@mui/material';
+import { Chip, Typography, Box, TextField, Autocomplete, CircularProgress, FormControl, InputLabel, MenuItem, Select, OutlinedInput, Checkbox, ListItemText } from '@mui/material';
 import { Check as CheckIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import axios from 'axios';
 import useAxios, { configure, loadCache, serializeCache } from 'axios-hooks';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { Item, History, AppContextInterface, Status, Method } from '../../types/Types';
+import { Accordion, AccordionSummary, AccordionDetails } from '../Accordion/Accordion';
 import MyPaper from '../Paper/Paper';
 import SiteStatistic from './SiteStatistic';
 import { SimpleCtx } from '../../context/SiteHistory';
@@ -143,12 +144,12 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 					</Select>
 				</FormControl>
 			</Box>
-			<Box id="scrollableContainer" sx={{ overflowY: 'scroll', overflowX: 'hidden' }} display="flex" flexDirection="column">
+			<Box id={domain} sx={{ overflowY: 'scroll', overflowX: 'hidden' }} display="flex" flexDirection="column">
 				<InfiniteScroll
 					dataLength={filteredHistories.length}
 					next={() => setPage(prevPage => prevPage + 1)}
 					hasMore={histories.length < totalCount}
-					scrollableTarget="scrollableContainer"
+					scrollableTarget={domain}
 					loader={
 						<Box display='flex' justifyContent='center'>
 							<CircularProgress />
@@ -162,8 +163,8 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
-						gap: '6px',
-						overflow: 'hidden'
+						overflow: 'hidden',
+						paddingRight: '6px',
 					}}
 				>
 					{
