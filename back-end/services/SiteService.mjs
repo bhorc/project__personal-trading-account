@@ -6,20 +6,7 @@ class NotificationService extends ContainsService {
   // Services for group verification
   static async isSiteDomainExist(domain) {
     const site = await Site.findOne({ domain });
-    console.log(site);
-    return !await this.isEmpty(site);
-  }
-  // Services for group middleware
-  static getItemInfo(transactions) {
-    const history = {};
-    transactions.forEach((transaction) => {
-      Object.keys(transaction).forEach((key) => {
-        if (history[key] === undefined || history[key] === null) {
-          history[key] = transaction[key];
-        }
-      });
-    });
-    return history;
+    return this.isEmpty(site);
   }
   // Services for group manipulation
   static async getSites() {
@@ -63,94 +50,6 @@ class NotificationService extends ContainsService {
       },
     }, { new: true });
     return updatedSite;
-  }
-  static async createHistory(domain, options) {
-    const { balance, transactions, purchases } = options;
-    const { siteId } = await Site.findOne({ domain });
-    const history = await History.create({
-      siteId,
-      balance,
-      transactions,
-      purchases,
-    });
-    return history;
-  }
-  static async getHistoriesById(siteId, historyId) {
-    const history = await History.findById(historyId);
-    return history;
-  }
-  static async updateHistory(siteId, historyId, options) {
-    const { balance, transactions, purchases } = options;
-    await History.updateOne({ _id: historyId, siteId }, {
-      $set: {
-        ...(balance && { balance }),
-        ...(transactions && { transactions }),
-        ...(purchases && { purchases }),
-      },
-    }, { new: true });
-  }
-  static async isHistoryExist(historyId) {
-    return History.exists({ _id: historyId });
-  }
-  static async updateHistories(items) {
-    const assetIdArray = items.map(({ assetId }) => assetId);
-    const historyArray = await History.find({ assetId: { $in: assetIdArray } });
-    const updatedHistories = items.map((item) => {
-      const { assetId, transaction, steamId } = item;
-      const { transactions = [] } = historyArray.find(({ assetId: id }) => assetId === id) || {};
-      if (!transactions.includes(transaction)) {
-        transactions.push(transaction);
-      }
-      return {
-        ...this.getItemInfo(transactions),
-        steamId,
-        assetId,
-        transactions,
-      };
-    });
-    await History.bulkWrite(
-      updatedHistories.map((history) => ({
-        updateOne: {
-          filter: { assetId: history.assetId },
-          update: { $set: history },
-          upsert: true,
-          strict: true,
-        },
-      })),
-    ).catch((error) => console.log(error));
-  }
-  static async getHistories(domains, steamId, options) {
-    const {
-      method = ['All'],
-      status = ['All'],
-      page = 0,
-      limit = 15,
-      dateFrom = 0,
-      dateTo = Date.now(),
-      sortBy = 'createdAt',
-    } = options;
-    const filter = {
-      transactions: {
-        $elemMatch: {
-          location: {
-            $in: domains,
-          },
-        },
-      },
-      steamId,
-      [sortBy]: {
-        $gte: new Date(dateFrom),
-        $lte: new Date(dateTo),
-      },
-      ...(method[0] !== 'All' && { method: { $in: method.join(',').split(',') } }),
-      ...(status[0] !== 'All' && { status: { $in: status.join(',').split(',') } }),
-    };
-    const count = await History.countDocuments(filter);
-    const history = await History.find(filter)
-      .skip(page * limit)
-      .limit(limit)
-      .select('-_id -type');
-    return [history, count];
   }
 }
 
