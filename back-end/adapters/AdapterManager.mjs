@@ -1,7 +1,7 @@
-import mapObject from 'map-obj';
 import skinsBase from '../data/csgobackpack.skinsBase.json' assert { type: 'json' };
+import ContainsService from '../services/ContainsService.mjs';
 
-class defaultAdapter {
+class defaultAdapter extends ContainsService {
   static renameMap = {};
   static short_exterior = {
     'Factory New': 'FN',
@@ -9,18 +9,6 @@ class defaultAdapter {
     'Field-Tested': 'FT',
     'Well-Worn': 'WW',
     'Battle-Scarred': 'BS',
-  }
-  static renameObj(data, filter) {
-    return mapObject(data, (key, value) => [filter[key] || key, value], { deep: true });
-  }
-  static renameObjects(data, filter) {
-    return data.map((item) => this.renameObj(item, filter));
-  }
-  static mergeByKey(key, array1, array2) {
-    return array1.map((item1) => {
-      const item2 = array2.find((item) => item[key] === item1[key]);
-      return item2 ? { ...item1, ...item2 } : item1;
-    });
   }
   static normalizeTime(time) {
     if (typeof time === 'number' && (time + '').length < 13) {
@@ -31,9 +19,11 @@ class defaultAdapter {
   static improveItems(location, steamId, items) {
     return items.map((item) => {
       const {
+        status = null,
         method = null,
         fullName = null,
         buyPrice = null,
+        depositPrice = null,
         buyTime = null,
         currentSteamId = null,
         assetId = null,
@@ -41,8 +31,10 @@ class defaultAdapter {
         feeFunds = null,
         salePrice = null,
         saleTime = null,
-        status = null,
         updateTime = null,
+        overprice = null,
+        collectionName = null,
+        overpay = null,
       } = item;
 
       // csgobackpack skinsBase
@@ -64,14 +56,16 @@ class defaultAdapter {
       const soldPrice = salePrice || null;
       const soldTime = status === 'sold' ? updateTime : null;
 
-      return {
+      const newItem = {
         ...item,
         steamId,
+        assetId: assetId.toString(),
         transaction: {
           location,
-          status: status.toLowerCase(),
-          method: method.toLowerCase(),
+          status: status ? status.toLowerCase() : null,
+          method: method ? method.toLowerCase() : null,
           buyPrice,
+          depositPrice,
           salePrice,
           soldPrice,
           feeFunds,
@@ -90,13 +84,17 @@ class defaultAdapter {
         weaponType,
         tournament,
         iconUrl,
+        overprice,
+        collectionName,
+        overpay,
         stattrak: Boolean(stattrak),
         souvenir: Boolean(souvenir),
       };
+      return newItem;
     });
   }
-  static adapt(domain, steamId, data) {
-    if (!data.length) return [];
+  static async adapt(domain, steamId, data) {
+    if (this.isEmpty(data)) return [];
     return this.improveItems(domain, steamId, this.renameObjects(data, this.renameMap));
   }
 }

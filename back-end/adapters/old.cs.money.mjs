@@ -23,8 +23,8 @@ class Adapter extends defaultAdapter {
       return { ...item, fullName };
     });
   }
-  static adapt(domain, steamId, data) {
-    if (!data.length) return [];
+  static async adapt(domain, steamId, data) {
+    if (this.isEmpty(data)) return [];
     data = this.setNames(data);
     return super.adapt(domain, steamId, data);
   }
