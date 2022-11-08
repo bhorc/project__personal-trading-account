@@ -43,10 +43,13 @@ const ItemSchema = new Schema({
   gunType: { type: String, default: null },
   float: { type: Number, default: null },
   pattern: { type: Number, default: null },
+  overprice: { type: Number, default: 0 },
+  overpay: { type: Object, default: {} },
   stickers: { type: Array, default: [] },
   iconUrl: { type: String, default: null },
   inspectLink: { type: String, default: null },
   tournament: { type: String, default: null },
+  collectionName: { type: String, default: null },
   stattrak: { type: Boolean, default: false },
   souvenir: { type: Boolean, default: false },
 }, { strict: true, timestamps: true, versionKey: false });
@@ -54,11 +57,12 @@ const ItemSchema = new Schema({
 const HistorySchema = new Schema({
   type: { type: String, default: 'History' },
   steamId: { type: String, required: true, ref: 'User' },
-  assetId: { type: String, required: true },
+  assetId: { type: String, required: true, unique: true },
   transactions: [{
-    location: { type: String, required: true },
-    status: { type: String, required: true },
-    method: { type: String, required: true },
+    location: { type: String, default: null },
+    status: { type: String, default: null },
+    method: { type: String, default: null },
+    depositPrice: { type: Number, default: 0 },
     buyPrice: { type: Number, default: 0 },
     salePrice: { type: Number, default: 0 },
     soldPrice: { type: Number, default: 0 },
@@ -69,17 +73,6 @@ const HistorySchema = new Schema({
     feePercent: { type: Number, default: 0 },
     createdAt: { type: Date, default: null },
   }],
-  location: { type: String, required: true },
-  status: { type: String, required: true },
-  method: { type: String, required: true },
-  buyPrice: { type: Number, default: 0 },
-  salePrice: { type: Number, default: 0 },
-  soldPrice: { type: Number, default: 0 },
-  buyTime: { type: Date, default: null },
-  saleTime: { type: Date, default: null },
-  soldTime: { type: Date, default: null },
-  feeFunds: { type: Number, default: 0 },
-  feePercent: { type: Number, default: 0 },
 }, { strict: true, timestamps: true, versionKey: false });
 
 const NotificationSchema = new Schema({
