@@ -22,7 +22,7 @@ class UserController {
     try {
       const { login, password } = req.body;
       switch (false) {
-        case await UserService.isEmpty(req.session.user):
+        case UserService.isEmpty(req.session.user):
           return next(ServerMessage.conflict('User already logged in'));
         case await UserService.isLoginValid(login):
           return next(ServerMessage.badRequest('User with this login not found'));
@@ -57,13 +57,13 @@ class UserController {
       const { userId } = req.session.user;
       const { login, password, username } = req.body;
       switch (true) {
-        case await UserService.isEmpty(req.body):
+        case UserService.isEmpty(req.body):
           return next(ServerMessage.badRequest('No data to update'));
-        case await UserService.isEmptyString(login):
+        case UserService.isStringEmpty(login):
           return next(ServerMessage.badRequest('Login is empty'));
-        case await UserService.isEmptyString(password):
+        case UserService.isStringEmpty(password):
           return next(ServerMessage.badRequest('Password is empty'));
-        case await UserService.isEmptyString(username):
+        case UserService.isStringEmpty(username):
           return next(ServerMessage.badRequest('Username is empty'));
         case await UserService.isLoginValid(login):
           return next(ServerMessage.conflict('User with this login already exists'));
