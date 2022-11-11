@@ -1,5 +1,12 @@
 [
   {
+    "domain": "old.cs.money",
+    "origin": "https://old.cs.money",
+    "parseOptions": {
+      "url": "https://old.cs.money/get_purchases"
+    }
+  },
+  {
     "domain": "cs.money",
     "origin": "https://cs.money",
     "description": "Parse inventory",
