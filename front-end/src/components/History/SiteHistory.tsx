@@ -5,7 +5,7 @@ import axios from 'axios';
 import useAxios, { configure, loadCache, serializeCache } from 'axios-hooks';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { Item, History, AppContextInterface, Status, Method } from '../../types/Types';
+import { Item, History, Transaction, AppContextInterface, Status, Method } from '../../types/Types';
 import { Accordion, AccordionSummary, AccordionDetails } from '../Accordion/Accordion';
 import MyPaper from '../Paper/Paper';
 import SiteStatistic from './SiteStatistic';
@@ -46,7 +46,6 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 		params: {
 			domain,
 			page,
-			// sortBy: 'soldTime',
 			'method[]': filterMethod.length ? filterMethod.join(',') : ['All'],
 			'status[]': filterStatus.length ? filterStatus.join(',') : ['All'],
 			dateTo: dateTo?.format('YYYY-MM-DD'),
@@ -73,7 +72,7 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 	}, [dateFrom, dateTo, filterMethod, filterStatus]);
 
 	useEffect(() => {
-		const filteredHistory = histories.filter(({ assetId, status, method }) => {
+		const filteredHistory = histories.filter(({ assetId }) => {
 			const { fullName = '' } = items.find((item) => item.assetId === assetId) || {};
 			return !filterSearch || fullName.toLowerCase().includes(filterSearch.toLowerCase());
 		});
@@ -168,14 +167,14 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 					}}
 				>
 					{
-						filteredHistories.map((history: History, index: number, array) => {
-							const prevHistory = array[index - 1];
-							const { soldTime: prevSoldTime, buyTime: prevBuyTime } = prevHistory || {};
-							const { assetId, status, method, buyPrice, buyTime, salePrice, soldPrice, soldTime, feeFunds	} = history;
+						filteredHistories.map(({ assetId, transactions, statusUpdatedAt }: History, index: number, array) => {
+							const { status, method, buyPrice, salePrice, soldPrice, feeFunds } = Object.assign({}, ...transactions) as Transaction;
+							const prevHistory = array[index - 1] || {};
+							const { statusUpdatedAt: prevStatusUpdatedAt } = prevHistory;
 							const { fullName,	iconUrl } = items.find((item: Item) => item.assetId === assetId) as Item || {};
-							const updatedTime = new Date(soldTime || buyTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-							const updatedDate = new Date(soldTime || buyTime).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});
-							const prevUpdatedDate = new Date(prevSoldTime || prevBuyTime).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});
+							const updatedTime = new Date(statusUpdatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+							const updatedDate = new Date(statusUpdatedAt).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});
+							const prevUpdatedDate = new Date(prevStatusUpdatedAt).toLocaleDateString([], {year: 'numeric', month: '2-digit', day: '2-digit'});
 							const profit = soldPrice - buyPrice - feeFunds;
 							const isProfitable = profit > 0;
 							return (

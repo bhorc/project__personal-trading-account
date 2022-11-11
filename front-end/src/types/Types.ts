@@ -27,6 +27,7 @@ export interface Transaction {
 	location: string;
 	status: Status;
 	method: Method;
+	depositPrice: number;
 	buyPrice: number;
 	salePrice: number;
 	soldPrice: number;
@@ -35,12 +36,14 @@ export interface Transaction {
 	soldTime: number;
 	feeFunds: number;
 	feePercent: number;
+	createdAt: number;
 }
 
 export enum Status {
 	sold = 'sold',
 	onSale = 'on sale',
 	inventory = 'inventory',
+	withdrawn = 'withdrawn',
 }
 
 export enum Method {
@@ -49,14 +52,15 @@ export enum Method {
 	auction = 'auction',
 }
 
-export interface History extends Transaction {
+export interface History {
 	_id?: number | object;
 	type?: string;
 	assetId: string;
 	steamId: string;
 	transactions: Transaction[];
-	createdAt: string;
-	updatedAt: string;
+	statusUpdatedAt: number;
+	createdAt: number;
+	updatedAt: number;
 }
 
 export interface Sticker {
