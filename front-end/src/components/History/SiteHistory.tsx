@@ -44,8 +44,8 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 	const [{ data, loading, error, response }, refetch] = useAxios({
 		url: 'site/getHistories',
 		params: {
-			domain,
 			page,
+			'domain[]': domain,
 			'method[]': filterMethod.length ? filterMethod.join(',') : ['All'],
 			'status[]': filterStatus.length ? filterStatus.join(',') : ['All'],
 			dateTo: dateTo?.format('YYYY-MM-DD'),
