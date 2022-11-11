@@ -13,6 +13,8 @@ const UserSchema = new Schema({
   username: { type: String },
   steamId: { type: String },
   avatar: { type: String },
+  createdAt: { type: Number },
+  updatedAt: { type: Number },
 }, { strict: true, timestamps: true, versionKey: false });
 
 const GroupSchema = new Schema({
@@ -21,6 +23,8 @@ const GroupSchema = new Schema({
   invitesId: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   membersId: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   name: { type: String, required: true },
+  createdAt: { type: Number },
+  updatedAt: { type: Number },
 }, { strict: true, timestamps: true, versionKey: false });
 
 const SiteSchema = new Schema({
@@ -29,6 +33,8 @@ const SiteSchema = new Schema({
   name: { type: String, required: true },
   url: { type: String, required: true },
   logo: { type: String, required: true },
+  createdAt: { type: Number },
+  updatedAt: { type: Number },
 }, { strict: true, timestamps: true, versionKey: false });
 
 const ItemSchema = new Schema({
@@ -52,6 +58,8 @@ const ItemSchema = new Schema({
   collectionName: { type: String, default: null },
   stattrak: { type: Boolean, default: false },
   souvenir: { type: Boolean, default: false },
+  createdAt: { type: Number },
+  updatedAt: { type: Number },
 }, { strict: true, timestamps: true, versionKey: false });
 
 const HistorySchema = new Schema({
@@ -59,20 +67,23 @@ const HistorySchema = new Schema({
   steamId: { type: String, required: true, ref: 'User' },
   assetId: { type: String, required: true, unique: true },
   transactions: [{
-    location: { type: String, default: null },
-    status: { type: String, default: null },
-    method: { type: String, default: null },
-    depositPrice: { type: Number, default: 0 },
-    buyPrice: { type: Number, default: 0 },
-    salePrice: { type: Number, default: 0 },
-    soldPrice: { type: Number, default: 0 },
-    buyTime: { type: Date, default: null },
-    saleTime: { type: Date, default: null },
-    soldTime: { type: Date, default: null },
-    feeFunds: { type: Number, default: 0 },
-    feePercent: { type: Number, default: 0 },
-    createdAt: { type: Date, default: null },
+    location: { type: String },
+    status: { type: String },
+    method: { type: String },
+    depositPrice: { type: Number },
+    buyPrice: { type: Number },
+    salePrice: { type: Number },
+    soldPrice: { type: Number },
+    feeFunds: { type: Number },
+    feePercent: { type: Number },
+    buyTime: { type: Number },
+    saleTime: { type: Number },
+    soldTime: { type: Number },
+    createdAt: { type: Number },
   }],
+  statusUpdatedAt: { type: Number },
+  createdAt: { type: Number },
+  updatedAt: { type: Number },
 }, { strict: true, timestamps: true, versionKey: false });
 
 const NotificationSchema = new Schema({
@@ -82,12 +93,16 @@ const NotificationSchema = new Schema({
   location: { type: String },
   message: { type: String },
   seen: { type: Boolean, default: false },
+  createdAt: { type: Number },
+  updatedAt: { type: Number },
 }, { strict: true, timestamps: true, versionKey: false });
 
 const SubscriptionSchema = new Schema({
   type: { type: String, default: 'Subscription' },
   userId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
   subscriptions: [{ type: String }],
+  createdAt: { type: Number },
+  updatedAt: { type: Number },
 }, { strict: true, timestamps: true, versionKey: false });
 
 export const User = model('User', UserSchema);
