@@ -19,19 +19,19 @@ class defaultAdapter extends ContainsService {
   static improveItems(location, steamId, items) {
     return items.map((item) => {
       const {
-        status = null,
-        method = null,
-        fullName = null,
-        buyPrice = null,
-        depositPrice = null,
-        buyTime = null,
-        currentSteamId = null,
-        assetId = null,
-        inspectDetails = null,
-        feeFunds = null,
-        salePrice = null,
-        saleTime = null,
-        updateTime = null,
+        status = 'inventory',
+        method = 'deposit',
+        fullName,
+        buyPrice,
+        depositPrice,
+        buyTime,
+        currentSteamId,
+        assetId,
+        inspectDetails,
+        feeFunds,
+        salePrice,
+        saleTime,
+        updateTime,
         overprice = null,
         collectionName = null,
         overpay = null,
@@ -52,19 +52,23 @@ class defaultAdapter extends ContainsService {
       } = skinsBase['items_list'][fullName] || {};
 
       const inspectLink = `steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20S${currentSteamId}A${assetId}D${inspectDetails}`;
-      const feePercent = feeFunds ? +((feeFunds / salePrice) * 100).toFixed(2) : null;
       const shortExterior = this.short_exterior[exterior] || null;
-      const soldPrice = salePrice || null;
-      const soldTime = status === 'sold' ? updateTime : null;
-
+      let soldPrice, soldTime, feePercent;
+      if (status === 'sold') {
+        soldPrice = salePrice;
+        soldTime = updateTime;
+      }
+      if (feeFunds) {
+        feePercent = +((feeFunds / salePrice) * 100).toFixed(2);
+      }
       const newItem = {
         ...item,
         steamId,
         assetId: assetId.toString(),
         transaction: {
           location,
-          status: status ? status.toLowerCase() : null,
-          method: method ? method.toLowerCase() : null,
+          status: status?.toLowerCase(),
+          method: method?.toLowerCase(),
           buyPrice,
           depositPrice,
           salePrice,
