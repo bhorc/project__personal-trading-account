@@ -19,8 +19,6 @@ class defaultAdapter extends ContainsService {
   static improveItems(location, steamId, items) {
     return items.map((item) => {
       const {
-        status = 'inventory',
-        method = 'deposit',
         fullName,
         buyPrice,
         depositPrice,
@@ -36,6 +34,7 @@ class defaultAdapter extends ContainsService {
         collectionName = null,
         overpay = null,
       } = item;
+      let { status, method } = item;
       delete item.type;
 
       // csgobackpack skinsBase
@@ -51,6 +50,25 @@ class defaultAdapter extends ContainsService {
         icon_url: iconUrl = null,
       } = skinsBase['items_list'][fullName] || {};
 
+      if (!status) {
+        if (depositPrice) {
+          status = 'inventory';
+        }
+        if (salePrice) {
+          status = 'on sale';
+        }
+        if (soldPrice) {
+          status = 'sold';
+        }
+      }
+      if (!method) {
+        if (depositPrice) {
+          method = 'deposit';
+        }
+        if (salePrice) {
+          method = 'trade';
+        }
+      }
       const inspectLink = `steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20S${currentSteamId}A${assetId}D${inspectDetails}`;
       const shortExterior = this.short_exterior[exterior] || null;
       let soldPrice, soldTime, feePercent;
