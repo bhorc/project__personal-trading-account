@@ -5,6 +5,56 @@ class NotificationService extends ContainsService {
   static blockListKeys = ['_id', 'type', 'createdAt', 'updatedAt', '__v'];
   static transactionsKeys = Object.keys(History.schema.obj.transactions[0]).filter(key => !this.blockListKeys.includes(key));
 
+  static async getStatistics(histories) {
+    const statistics = {
+      total: 0,
+      buyCount: 0,
+      saleCount: 0,
+      soldCount: 0,
+      depositCount: 0,
+      buyPrice: 0,
+      salePrice: 0,
+      soldPrice: 0,
+      depositPrice: 0,
+      commission: 0,
+      profit: 0,
+      expectedProfit: 0,
+    };
+    histories.forEach(({ transactions = [] }) => {
+      const {
+        depositPrice = 0,
+        buyPrice = 0,
+        salePrice = 0,
+        soldPrice = 0,
+        feeFunds = 0,
+      } = Object.assign(...transactions);
+      statistics.total += 1;
+      if (buyPrice) {
+        statistics.buyCount += 1;
+        statistics.buyPrice += buyPrice;
+      }
+      if (salePrice) {
+        statistics.saleCount += 1;
+        statistics.salePrice += salePrice;
+        statistics.expectedProfit += salePrice - feeFunds;
+      }
+      if (soldPrice) {
+        statistics.soldCount += 1;
+        statistics.soldPrice += soldPrice;
+        statistics.profit += soldPrice - buyPrice - feeFunds;
+        statistics.commission += feeFunds;
+      }
+      if (depositPrice) {
+        statistics.depositCount += 1;
+        statistics.depositPrice += depositPrice;
+      }
+    });
+    return Object.entries(statistics).reduce((acc, [key, value]) => {
+      acc[key] = +value.toFixed(2);
+      return acc;
+    }, {});
+  }
+
   static async getHistories(domains, steamId, options) {
     const {
       method = ['All'],
@@ -31,12 +81,14 @@ class NotificationService extends ContainsService {
       },
     };
     const count = await History.countDocuments(filter);
-    const history = await History.find(filter)
+    const history = await History.find(filter);
+    const statistics = await this.getStatistics(history);
+    const histories = await History.find(filter)
       .sort({ statusUpdatedAt: -1 })
       .skip(page * limit)
       .limit(limit)
       .select('-_id -type');
-    return [history, count];
+    return { histories, statistics, count };
   }
   static async createHistories(newHistories) {
     if (this.isEmpty(newHistories)) return;
