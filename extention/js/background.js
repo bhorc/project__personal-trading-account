@@ -100,7 +100,7 @@ class Parser {
 		await this.updateHistory();
 		if (this.loop) {
 			const timer = setInterval(() => {
-				this.response.forEach((key, value) => {
+				Object.entries(this.response).forEach(([key, value]) => {
 					switch (true) {
 						case typeof value === 'number' && this.data[key].length >= value:
 						case typeof value === 'string' && this.data[key] === value:
@@ -109,7 +109,7 @@ class Parser {
 							clearInterval(timer);
 					}
 				});
-				this.loop.forEach((key, value) => {
+				Object.entries(this.loop).forEach(([key, value]) => {
 					switch (typeof value) {
 						case 'number':
 							this.query[key] += value;
@@ -122,7 +122,7 @@ class Parser {
 					}
 				});
 				this.updateHistory();
-			}, 30 * TIME_UNITS.MINUTE);
+			}, 0.5 * TIME_UNITS.MINUTE);
 		}
 	}
 }

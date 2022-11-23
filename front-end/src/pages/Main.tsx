@@ -8,8 +8,8 @@ import CtxProvider from '../context/SiteHistory';
 
 const sites = [
 	'old.cs.money',
-	'cs.money',
 	'buff.163.com',
+	'steamcommunity.com',
 ];
 
 const Main = () => {
@@ -20,9 +20,9 @@ const Main = () => {
 				<AsideMenuLeft />
 				<Box sx={{ width: '100%', height: 'calc(100vh - 64px)', p: '6px', mt: '64px', borderRadius: '5px', bgcolor: 'background.gray-600' }}>
 					<Box component="main" sx={{ height: '100%', flexGrow: 1 }} display="flex" gap="6px">
-						{sites && sites.map((domain) => (
+						{sites ? sites.map((domain) => (
 								<SiteHistory key={domain} domain={domain} />
-						))}
+						)) : null}
 					</Box>
 				</Box>
 				<AsideMenuRight />

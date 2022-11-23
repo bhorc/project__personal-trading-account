@@ -8,6 +8,10 @@ class NotificationService extends ContainsService {
     const site = await Site.findOne({ domain });
     return this.isEmpty(site);
   }
+  static async isSiteDomainsExist(domains) {
+    const sites = await Site.find({ domain: { $in: domains } });
+    return this.isEmpty(sites);
+  }
   // Services for group manipulation
   static async getSites() {
     const sites = await Site.find();

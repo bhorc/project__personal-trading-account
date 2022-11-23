@@ -39,11 +39,27 @@ export interface Transaction {
 	createdAt: number;
 }
 
+export interface Statistics {
+	total: number;
+	profit: number;
+	expectedProfit: number;
+	commission: number;
+	buyCount: number;
+	saleCount: number;
+	soldCount: number;
+	depositCount: number;
+	buyPrice: number;
+	salePrice: number;
+	soldPrice: number;
+	depositPrice: number;
+}
+
 export enum Status {
 	sold = 'sold',
 	onSale = 'on sale',
 	inventory = 'inventory',
 	withdrawn = 'withdrawn',
+	refund = 'refund',
 }
 
 export enum Method {

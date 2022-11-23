@@ -1,11 +1,13 @@
-import { Item } from '../models/Models.mjs';
+import { History, Item } from '../models/Models.mjs'
 import ContainsService from './ContainsService.mjs';
 
 class ItemService extends ContainsService {
   static async getItems(histories) {
     const assetIdArray = histories.map(({ assetId }) => assetId);
-    const items = await Item.find({ assetId: { $in: assetIdArray } }).select('-_id -type');
-    return items;
+    const filter = { assetId: { $in: assetIdArray } };
+    const count = await History.countDocuments(filter);
+    const items = await Item.find(filter).select('-_id -type');
+    return { items, count };
   }
   static async createItems(newItems) {
     if (this.isEmpty(newItems)) return;

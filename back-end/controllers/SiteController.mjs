@@ -106,15 +106,14 @@ class SiteController {
       switch (true) {
         case ContainsService.isEmpty(domain):
           return next(ServerMessage.badRequest('Domain is empty'));
-        case await SiteService.isSiteDomainExist(domain):
-          return next(ServerMessage.badRequest('Site not found'));
+        case await SiteService.isSiteDomainsExist(domain):
+          return next(ServerMessage.notFound('Site not found'));
         default:
-          const domains = domain instanceof Array ? domain.join(',').split(',') : [domain];
-          const [histories, count] = await HistoryService.getHistories(domains, steamId, options);
-          const items = await ItemService.getItems(histories);
-          res.append('X-Total-Count', count);
+          const { histories, statistics, count: historiesCount } = await HistoryService.getHistories(domain, steamId, options);
+          const { items, count: itemsCount } = await ItemService.getItems(histories);
+          res.append('X-Total-Count', historiesCount);
           res.append('Access-Control-Expose-Headers', 'X-Total-Count');
-          return next(ServerMessage.success('Histories found', { histories, items }));
+          return next(ServerMessage.success('Histories found', { histories, statistics, items }));
       }
     } catch (error) {
       return next(ServerMessage.serverError(error));
