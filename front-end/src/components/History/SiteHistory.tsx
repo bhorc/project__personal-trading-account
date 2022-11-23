@@ -5,7 +5,7 @@ import axios from 'axios';
 import useAxios, { configure, loadCache, serializeCache } from 'axios-hooks';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { Item, History, Transaction, AppContextInterface, Status, Method } from '../../types/Types';
+import { Item, History, Transaction, AppContextInterface, Status, Method, Statistics } from '../../types/Types'
 import { Accordion, AccordionSummary, AccordionDetails } from '../Accordion/Accordion';
 import MyPaper from '../Paper/Paper';
 import SiteStatistic from './SiteStatistic';
@@ -35,6 +35,20 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 	const { dateTo, dateFrom } = useContext<AppContextInterface>(SimpleCtx);
 	const [items, setItems] = useState<Item[]>([]);
 	const [histories, setHistories] = useState<History[]>([]);
+	const [statistics, setStatistics] = useState<Statistics>({
+		total: 0,
+		profit: 0,
+		expectedProfit: 0,
+		commission: 0,
+		buyCount: 0,
+		saleCount: 0,
+		soldCount: 0,
+		depositCount: 0,
+		buyPrice: 0,
+		salePrice: 0,
+		soldPrice: 0,
+		depositPrice: 0,
+	});
 	const [filteredHistories, setFilteredHistories] = useState<typeof histories>([]);
 	const [filterSearch, setFilterSearch] = useState<string | null>(null);
 	const [filterMethod, setFilterMethod] = useState<Method[]>([]);
@@ -55,9 +69,10 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 
 	useEffect(() => {
 		if (data?.data) {
-			const { items = [], histories = [] } = data.data;
+			const { items = [], histories = [], statistics = [] } = data.data;
 			setItems(prevItems => [...prevItems, ...items]);
 			setHistories(prevHistories => [...prevHistories, ...histories]);
+			setStatistics(statistics);
 			setTotalCount(Number(response?.headers['x-total-count']));
 			// serializeCache().then((cache) => {
 			// 	localStorage.setItem('cache', JSON.stringify(cache));
@@ -88,7 +103,7 @@ const SiteHistory = ({ domain }: { domain: string }) => {
 	return (
 		<Box sx={{ height: '100%', flexDirection: 'column'}} display="flex" gap="6px">
 			<MyPaper>
-				<SiteStatistic histories={histories} />
+				<SiteStatistic statistics={statistics} />
 			</MyPaper>
 			<Box display="flex" gap="6px">
 				<Autocomplete
