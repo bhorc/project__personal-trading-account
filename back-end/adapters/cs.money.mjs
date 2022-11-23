@@ -2,7 +2,8 @@ import defaultAdapter from './AdapterManager.mjs';
 
 class Adapter extends defaultAdapter {
   static renameMap = {
-    "price": "depositPrice",
+    "price": "salePrice",
+    "botPrice": "depositPrice",
     "steamId": "currentSteamId",
     "steamImg": "iconUrl",
     "inspect": "inspectDetails",
