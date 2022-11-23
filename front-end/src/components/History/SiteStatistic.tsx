@@ -2,10 +2,10 @@ import { Box, Grid, TextField, Typography } from '@mui/material';
 import React, {useContext} from 'react';
 import { LocalizationProvider, MobileDatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { History } from '../../types/Types';
+import { Statistics } from '../../types/Types';
 import { SimpleCtx } from '../../context/SiteHistory';
 
-const SiteStatistic = ({histories}: { histories: History[] }) => {
+const SiteStatistic = ({statistics}: { statistics: Statistics }) => {
 	const { dateTo, setDateTo, dateFrom, setDateFrom } = useContext(SimpleCtx);
 
 	return (
@@ -89,39 +89,31 @@ const SiteStatistic = ({histories}: { histories: History[] }) => {
 				<Typography variant="subtitle2" component="h2" sx={{ textTransform: 'uppercase', lineHeight: '26px', pl: 1 }}>
 					<Grid container justifyContent="space-between">
 						<span>Purchased items:</span>
-						<span>$ 15.00</span>
+						<span>$ {statistics.buyPrice} / {statistics.buyCount}</span>
 					</Grid>
 					<Grid container justifyContent="space-between">
-						<span>Purchased Count:</span>
-						<span>5</span>
+						<span>Listed items:</span>
+						<span>$ {statistics.salePrice} / {statistics.saleCount}</span>
 					</Grid>
 					<Grid container justifyContent="space-between">
 						<span>Sold items:</span>
-						<span>$ 25.00</span>
-					</Grid>
-					<Grid container justifyContent="space-between">
-						<span>Sold Count:</span>
-						<span>2</span>
+						<span>$ {statistics.soldPrice} / {statistics.soldCount}</span>
 					</Grid>
 				</Typography>
 			</Grid>
 			<Grid item xs={5.5}>
 				<Typography variant="subtitle2" component="h2" sx={{ textTransform: 'uppercase', lineHeight: '26px' }}>
 					<Grid container justifyContent="space-between">
-						<span>Listed items:</span>
-						<span>$ 15.00</span>
-					</Grid>
-					<Grid container justifyContent="space-between">
-						<span>Listed items Count:</span>
-						<span>5</span>
-					</Grid>
-					<Grid container justifyContent="space-between">
 						<span>Current Profit:</span>
-						<span>$ 25.00</span>
+						<span>$ {statistics.profit}</span>
 					</Grid>
 					<Grid container justifyContent="space-between">
 						<span>Expected profit:</span>
-						<span>$ 51.00</span>
+						<span>$ {statistics.expectedProfit}</span>
+					</Grid>
+					<Grid container justifyContent="space-between">
+						<span>Commission paid:</span>
+						<span>$ {statistics.commission}</span>
 					</Grid>
 				</Typography>
 			</Grid>
